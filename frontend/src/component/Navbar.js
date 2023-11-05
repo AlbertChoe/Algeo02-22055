@@ -1,38 +1,97 @@
+
+import { Link, useLocation } from "react-router-dom";
+
 const Navbar = () => {
+    const location = useLocation(); // Hook to get the current location
+    const showLaunchButton = location.pathname !== '/technology';
     return (
-      <div className="h-screen">
-        <header class="bg-white">
-        <nav class="flex justify-between items-center w-[92%]  mx-auto"/>
-        <div>
-            <img class="w-16 cursor-pointer" src="" alt="..."/>
-        </div>
-        <div
-            class="nav-links duration-500 md:static absolute bg-white md:min-h-fit min-h-[60vh] left-0 top-[-100%] md:w-auto  w-full flex items-center px-5">
-            <ul class="flex md:flex-row flex-col md:items-center md:gap-[4vw] gap-8">
-                <li>
-                    <a class="hover:text-gray-500" href="#">Products</a>
-                </li>
-                <li>
-                    <a class="hover:text-gray-500" href="#">Solution</a>
-                </li>
-                <li>
-                    <a class="hover:text-gray-500" href="#">Resource</a>
-                </li>
-                <li>
-                    <a class="hover:text-gray-500" href="#">Developers</a>
-                </li>
-                <li>
-                    <a class="hover:text-gray-500" href="#">Pricing</a>
-                </li>
-            </ul>
-        </div>
-        <div class="flex items-center gap-6">
-            <button class="bg-[#a6c1ee] text-white px-5 py-2 rounded-full hover:bg-[#87acec]">Sign in</button>
-            <ion-icon onclick="onToggleMenu(this)" name="menu" class="text-3xl cursor-pointer md:hidden"></ion-icon>
-        </div>
-            </header>
-    </div>
-  );
+        <nav className=" fixed w-full h-20 bg-gray-500">
+                <nav className="flex flex-row justify-between items-center w-[92%] mx-auto">
+                    <div className="">
+                        {/* Uncomment and replace src with your logo */}
+                        {/* <img className="w-16 cursor-pointer" src="" alt="..."/> */}
+                        SnapTwin
+                    </div>
+                    <div className="duration-500 min-h-[10vh]  w-auto  flex items-center     ">
+                        <ul className="flex flex-row md:gap-[3vw] 2xl:gap-[6vw]   py-3 px-3   ">
+                        <li>
+                            <div className="py-3">
+                                <Link to="/" class="group text-black transition-all duration-300 ease-in-out" >
+                                <span class="bg-left-bottom bg-gradient-to-r from-pink-500 to-pink-500 bg-[length:0%_5px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg">
+                                Technology
+                                </span>
+                                </Link>
+                            </div>
+                            {/* <div className="hover:bg-amber-200 duration-300 hover:text-blue-200 py-3 px-5 rounded-lg ">
+                                <a className="   " href="#">Products</a>
+                            </div> */}
+                            </li>
+                        <li>
+                            <div className="py-3">
+                                <Link to="/" class="group text-black transition-all duration-300 ease-in-out" href="">
+                                <span class="bg-left-bottom bg-gradient-to-r from-pink-500 to-pink-500 bg-[length:0%_6px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg">
+                                    About us
+                                </span>
+                                </Link>
+                            </div>
+                            {/* <div className="hover:bg-amber-200  duration-300 py-3  px-5 rounded-lg hover:text-blue-200">
+                                <a className="  " href="#">Solution</a>
+                            </div> */}
+                                
+                        </li>
+                        {/* <li>
+                            <a class="group text-pink-500 transition-all duration-300 ease-in-out" href="#">
+                                <span class="bg-left-bottom bg-gradient-to-r from-pink-500 to-pink-500 bg-[length:0%_2px] bg-no-repeat  group-hover:bg-[length:90%_2px] onset-10 pb-1 transition-all duration-500 ease-out">
+                                    This text g
+                                </span>
+                            </a>
+                        </li> */}
+                        <li>
+                            <div className="py-3">
+                                <Link to="/" class="group text-black transition-all duration-300 ease-in-out" >
+                                <span class="bg-left-bottom bg-gradient-to-r from-pink-500 to-pink-500 bg-[length:0%_6px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg">
+                                    How to use
+                                </span>
+                                </Link>
+                            </div>
+                            {/* <div className="hover:bg-amber-200 duration-300 py-3 hover:text-blue-200 px-5 rounded-lg">
+                                <a className="  " href="#">Resource</a>
+                                </div>     */}
+                            </li>
+                            
+                        </ul>
+                </div>
+                {/* Conditionally render Launch button or a placeholder */}
+                {showLaunchButton ? (
+                    <button className="btn2 px-10 py-5 relative border border-white uppercase font-semibold tracking-wider leading-none overflow-hidden hover:text-teal-600" type="button">
+                        <span className="absolute inset-0 bg-white"></span>
+                        <span className="absolute inset-0 flex justify-center items-center font-bold"> 
+                            Launch
+                        </span>
+                        Launch
+                    </button>
+                ) : (
+                    <button 
+                            className={`btn2 px-10 py-5 relative border uppercase font-semibold tracking-wider leading-none overflow-hidden ${location.pathname === '/technology' ? 'opacity-50 cursor-not-allowed border-gray-500 text-gray-500 bg-gray-500' : 'hover:text-teal-600 border-white'}`} 
+                            type="button"
+                            disabled={location.pathname === '/technology'}
+                        >
+                            <span className="absolute inset-0 bg-white"></span>
+                            <span className="absolute inset-0 flex justify-center items-center font-bold"> 
+                                Launch
+                            </span>
+                            Launch
+                        </button>
+                )}
+
+                    {/* <div className="flex items-center gap-6">
+                        <button className="bg-[#a6c1ee] text-white px-5 py-2 rounded-full hover:bg-[#87acec]">Launch Product</button>
+                        
+                    </div> */}
+                </nav>
+            
+        </nav>
+    );
 };
 
 export default Navbar;
