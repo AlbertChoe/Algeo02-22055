@@ -7,17 +7,18 @@ const Navbar = () => {
     return (
         <nav className=" fixed w-full h-20 bg-gray-500">
                 <nav className="flex flex-row justify-between items-center w-[92%] mx-auto">
-                    <div className="">
+                    <div className="text-5xl font-reemkufi font-extrabold">
                         {/* Uncomment and replace src with your logo */}
-                        {/* <img className="w-16 cursor-pointer" src="" alt="..."/> */}
-                        SnapTwin
+                    {/* <img className="w-16 cursor-pointer" src="" alt="..."/> */}
+                    <Link to="/"> SnapTwin </Link>
+
                     </div>
                     <div className="duration-500 min-h-[10vh]  w-auto  flex items-center     ">
                         <ul className="flex flex-row md:gap-[3vw] 2xl:gap-[6vw]   py-3 px-3   ">
                         <li>
                             <div className="py-3">
                                 <Link to="/" class="group text-black transition-all duration-300 ease-in-out" >
-                                <span class="bg-left-bottom bg-gradient-to-r from-pink-500 to-pink-500 bg-[length:0%_5px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg">
+                                <span class="bg-left-bottom bg-gradient-to-r from-pink-500 to-pink-500 bg-[length:0%_5px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg  font-medium text-xl ">
                                 Technology
                                 </span>
                                 </Link>
@@ -29,7 +30,7 @@ const Navbar = () => {
                         <li>
                             <div className="py-3">
                                 <Link to="/" class="group text-black transition-all duration-300 ease-in-out" href="">
-                                <span class="bg-left-bottom bg-gradient-to-r from-pink-500 to-pink-500 bg-[length:0%_6px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg">
+                                <span class="bg-left-bottom bg-gradient-to-r from-pink-500 to-pink-500 bg-[length:0%_6px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg  font-medium text-xl ">
                                     About us
                                 </span>
                                 </Link>
@@ -49,7 +50,7 @@ const Navbar = () => {
                         <li>
                             <div className="py-3">
                                 <Link to="/" class="group text-black transition-all duration-300 ease-in-out" >
-                                <span class="bg-left-bottom bg-gradient-to-r from-pink-500 to-pink-500 bg-[length:0%_6px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg">
+                                <span class="bg-left-bottom bg-gradient-to-r from-pink-500 to-pink-500 bg-[length:0%_6px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg  font-medium text-xl ">
                                     How to use
                                 </span>
                                 </Link>
@@ -72,11 +73,11 @@ const Navbar = () => {
                     </button>
                 ) : (
                     <button 
-                            className={`btn2 px-10 py-5 relative border uppercase font-semibold tracking-wider leading-none overflow-hidden ${location.pathname === '/technology' ? 'opacity-50 cursor-not-allowed border-gray-500 text-gray-500 bg-gray-500' : 'hover:text-teal-600 border-white'}`} 
+                            className={`btn2 px-10 py-5 relative cursor-default border uppercase font-semibold tracking-wider leading-none overflow-hidden ${location.pathname === '/technology' ? 'opacity-0 cursor-not-allowed border-gray-500 text-gray-500 bg-gray-500' : 'hover:text-teal-600 border-white'}`} 
                             type="button"
                             disabled={location.pathname === '/technology'}
                         >
-                            <span className="absolute inset-0 bg-white"></span>
+                            <span className="absolute inset-0 "></span>
                             <span className="absolute inset-0 flex justify-center items-center font-bold"> 
                                 Launch
                             </span>
