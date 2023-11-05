@@ -1,13 +1,51 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import url('https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;500;600;700&display=swap');
+
+/* Rest of your CSS */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.fade-in {
+  animation: fadeIn 2s ease-in-out forwards;
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.zoom-in {
+  animation: zoomIn 1s ease-out forwards;
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink-caret {
+  50% { border-color: transparent; }
+}
+
+.typing {
+  
+  overflow: hidden; /* Ensures the content is not displayed outside the box */
+  border-right: .15em solid orange; /* The caret (cursor) */
+  white-space: nowrap; /* Keeps the content on a single line */
+  margin: 0 0; /* Gives that scrolling effect as the typing happens */
+  letter-spacing: .15em; /* Adjust as needed */
+  animation: 
+    typing 6s steps(40, end) infinite,
+    blink-caret .75s step-end infinite;
 }

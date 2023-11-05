@@ -4,7 +4,12 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'reemkufi': ['"Reem Kufi"', 'sans-serif'],
+      
+      },
+    },
   },
   plugins: [],
 }
