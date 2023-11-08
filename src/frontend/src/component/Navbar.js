@@ -67,9 +67,10 @@ const Navbar = () => {
                     <button className="btn2 px-10 py-5 relative border border-white uppercase font-semibold tracking-wider leading-none overflow-hidden hover:text-teal-600" type="button">
                         <span className="absolute inset-0 bg-white"></span>
                         <span className="absolute inset-0 flex justify-center items-center font-bold"> 
-                            Launch
+                        <Link to="/Search">Launch</Link>
                         </span>
-                        Launch
+                           
+                         <Link to="/Search">Launch</Link>
                     </button>
                 ) : (
                     <button 
