@@ -7,10 +7,13 @@ from PIL import Image
 
 path = "./dataset"
 filename = "apel.jpg"
+file2name = "1.jpg"
 image = Image.open(os.path.join(path, filename))
+image2 = Image.open(os.path.join(path, file2name))
 bufferimg = np.array(image).astype("float64")
+bufferimg2 = np.array(image2).astype("float64")
 st = time.time()
-print(st)
+# print(st)
 def get_hsv(image):
     buffer_img = np.array(image)
     Rn = buffer_img[:, :, 0] / 255
@@ -67,8 +70,7 @@ def cosinesim(a, b):
     csim = dotprod/(lengtha*lengthb)
     return csim
 # print(np.dot([1,2],[2,3]))
-print(cosinesim(histvectorize(quantify(get_hsv(bufferimg))), histvectorize(quantify(get_hsv(bufferimg)))))
+print(cosinesim(histvectorize(quantify(get_hsv(bufferimg))), histvectorize(quantify(get_hsv(bufferimg2)))))
 fn = time.time()
-print(fn)
-print("TIME: ")
+# print(fn)
 print(fn-st)
