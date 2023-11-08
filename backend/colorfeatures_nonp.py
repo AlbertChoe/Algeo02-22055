@@ -1,4 +1,4 @@
-import colorfeatures as cf
+from multiprocessing import Process
 import math
 import time
 import os
@@ -10,8 +10,8 @@ filename = "apel.jpg"
 file2name = "1.jpg"
 image = Image.open(os.path.join(path, filename))
 image2 = Image.open(os.path.join(path, file2name))
-bufferimg = np.array(image).astype("float64")
-bufferimg2 = np.array(image2).astype("float64")
+bufferimg = np.array(image)
+bufferimg2 = np.array(image2)
 st = time.time()
 # print(st)
 def get_hsv(image):
@@ -27,7 +27,7 @@ def get_hsv(image):
     H = np.zeros_like(Cmax)
     H[delta != 0] = 60 * ((np.where(Cmax == Rn, (Gn - Bn) / delta, np.where(Cmax == Gn, (Bn - Rn) / delta + 2, (Rn - Gn) / delta + 4)) % 6)[delta != 0])
 
-    S = np.where(Cmax == 0, 0, delta / Cmax)
+    S = np.where(Cmax != 0, delta / Cmax, 0)
     V = Cmax
 
     hsv_img = np.dstack((H, S, V))
@@ -51,25 +51,38 @@ def quantify(hsv_img):
     hsv_img = np.dstack((H, S, V))
     return hsv_img
 
+
 def histvectorize(hsv_img):
     hsv = np.array(hsv_img)
-    # Calculate the indices for the histogram bins
-    idxMat = hsv[:, :, 0] * 9 + hsv[:, :, 1] * 3 + hsv[:, :, 2]
+    num_bins = 72
+    arr = np.zeros(num_bins)
+    indices = hsv[:, :, 0] * 9 + hsv[:, :, 1] * 3 + hsv[:, :, 2]
+    unique_indices, counts = np.unique(indices, return_counts=True)
+    arr[unique_indices] = counts
+    
+    return arr
 
-    # Count the occurrences of each bin
-    hist = np.bincount(idxMat.ravel())
+def dotprod(a,b):
+    d = 0
+    for i in range(len(a)):
+        d += a[i]*b[i]
+    return d
 
-    return hist
+def norm(a):
+    sumsq = 0
+    for i in range(len(a)):
+        sumsq += a[i]**2
+    return math.sqrt(sumsq)
 
 def cosinesim(a, b):
-    a = np.array(a)
-    b = np.array(b)
-    dotprod = np.dot(a,b)
+    a = np.array(a, dtype = np.int64)
+    b = np.array(b, dtype = np.int64)
+    dot = np.dot(a,b)
     lengtha = np.linalg.norm(a)
     lengthb = np.linalg.norm(b)
-    csim = dotprod/(lengtha*lengthb)
+    csim = dot/(lengtha*lengthb)
     return csim
-# print(np.dot([1,2],[2,3]))
+
 print(cosinesim(histvectorize(quantify(get_hsv(bufferimg))), histvectorize(quantify(get_hsv(bufferimg2)))))
 fn = time.time()
 # print(fn)
