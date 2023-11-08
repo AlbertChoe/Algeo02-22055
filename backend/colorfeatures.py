@@ -22,4 +22,8 @@ def getHSV(a: [int]):
         S = delta/Cmax
 
     V = Cmax
-    return [H,S,V]
+    return np.array([H,S,V])
+
+# def histBin()
+
+# def quantifyHSV(hist, arr):
