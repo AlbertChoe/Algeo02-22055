@@ -29,7 +29,7 @@ const Navbar = () => {
                             </li>
                         <li>
                             <div className="py-3">
-                                <Link to="/" class="group text-black transition-all duration-300 ease-in-out" href="">
+                                <Link to="/Aboutus" class="group text-black transition-all duration-300 ease-in-out" href="">
                                 <span class="bg-left-bottom bg-gradient-to-r from-pink-500 to-pink-500 bg-[length:0%_6px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg  font-medium text-xl ">
                                     About us
                                 </span>

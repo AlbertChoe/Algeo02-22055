@@ -11,6 +11,7 @@ import {
   Link
 } from "react-router-dom";
 import Firstpage from './component/Firstpage';
+import Aboutus from './component/AboutUs';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -20,9 +21,10 @@ root.render(
     <Router>
       
     <App />
+    
       <Routes>
         <Route path="/" element={<Firstpage />} />
-        <Route path="/" element={<Firstpage />} />
+        <Route path="/AboutUs" element={<Aboutus />} />
         <Route path="/" element={<Firstpage />} />
         {/* // Define other routes here */}
       </Routes>
