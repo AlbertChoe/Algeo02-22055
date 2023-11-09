@@ -107,6 +107,8 @@ def imageToHistogram(image_path):
 
 
 def cosineSimilarity(histo1, histo2):
+    histo1 = histo1.astype(np.int64)
+    histo2 = histo2.astype(np.int64)
     dot_product = np.dot(histo1, histo2)
     lenghtHisto1 = math.sqrt(np.dot(histo1, histo1))
     lengthHisto2 = math.sqrt(np.dot(histo2, histo2))
@@ -117,8 +119,6 @@ def cosineSimilarity(histo1, histo2):
 # start = time.time()
 # myhisto1 = imageToHistogram("image1.jpeg")
 # myhisto2 = imageToHistogram("image2.jpeg")
-# myhisto1 = myhisto1.astype(np.int64)
-# myhisto2 = myhisto2.astype(np.int64)
 # print(myhisto1)
 # print(myhisto2)
 # cosinus = cosineSimilarity(myhisto1, myhisto2)

@@ -1,3 +1,7 @@
 backend/tes.py
-venv
+src/backend/__pycache__
+src/backend/image_histograms.json
+src/backend/image
+src/backend/venv
+src/backend/env
 __pycache__

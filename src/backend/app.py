@@ -74,33 +74,33 @@ def upload_file():
     return jsonify({"message": "File uploaded, extracted, and processed successfully"}), 200
 
 
-# @app.route('/search', methods=['POST'])
-# def search_image():
-#     if 'file' not in request.files:
-#         return jsonify({"error": "No file part"}), 400
+@app.route('/search', methods=['POST'])
+def search_image():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
 
-#     target_file = request.files['file']
-#     if target_file.filename == '':
-#         return jsonify({"error": "No selected file"}), 400
+    target_file = request.files['file']
+    if target_file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
 
-#     # Process the target image to get its histogram
-#     target_histogram = imageToHistogram(target_file)
+    # Process the target image to get its histogram
+    target_histogram = imageToHistogram(target_file)
 
-#     # Read the histogram JSON file
-#     with open('image_histograms.json', 'r') as json_file:
-#         image_histograms = json.load(json_file)
+    # Read the histogram JSON file
+    with open('image_histograms.json', 'r') as json_file:
+        image_histograms = json.load(json_file)
 
-#     # Compare histograms and calculate similarity
-#     similarities = {}
-#     for image_name, histogram in image_histograms.items():
-#         similarity = cosineSimilarity(np.array(histogram), target_histogram)
-#         similarities[image_name] = similarity
+    # Compare histograms and calculate similarity
+    similarities = {}
+    for image_name, histogram in image_histograms.items():
+        similarity = cosineSimilarity(np.array(histogram), target_histogram)
+        similarities[image_name] = similarity
 
-#     # Sort by similarity score (higher is more similar)
-#     sorted_similarities = sorted(
-#         similarities.items(), key=lambda x: x[1], reverse=True)
+    # Sort by similarity score (higher is more similar)
+    sorted_similarities = sorted(
+        similarities.items(), key=lambda x: x[1], reverse=True)
 
-#     return jsonify(sorted_similarities), 200
+    return jsonify(sorted_similarities), 200
 
 # @app.route('/search', methods=['POST'])
 # def search_image():
