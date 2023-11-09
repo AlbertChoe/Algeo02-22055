@@ -8,6 +8,9 @@ from PIL import Image
 import numpy as np
 # Assuming your image processing functions (rgb_to_hsv, hsv_to_hsvFeature, makeHistogram, imageToHistogram) are defined
 from hitungan import imageToHistogram, cosineSimilarity
+import time
+from multiprocessing import Pool
+
 
 app = Flask(__name__)
 CORS(app)
@@ -18,16 +21,54 @@ os.makedirs(image_dir, exist_ok=True)
 # Function to process images and create JSON
 
 
-def process_images_to_json(image_folder):
-    image_data = {}
-    for image_name in os.listdir(image_folder):
-        if image_name.lower().endswith(('.png', '.jpg', '.jpeg')):
-            image_path = os.path.join(image_folder, image_name)
+# def process_single_image(image_path):
+#     if image_path.lower().endswith(('.png', '.jpg', '.jpeg')):
+#         histogram = imageToHistogram(image_path)
+#         return (image_path, histogram.tolist())
+#     return None
+
+
+# def process_images_to_json(image_folder):
+#     image_paths = [os.path.join(image_folder, img)
+#                    for img in os.listdir(image_folder)]
+
+#     with Pool() as pool:
+#         results = pool.map(process_single_image, image_paths)
+
+#     # Filter out None results and convert to dictionary
+#     image_data = {os.path.basename(
+#         path): hist for path, hist in results if path is not None}
+
+#     with open('image_histograms.json', 'w') as json_file:
+#         json.dump(image_data, json_file)
+def process_batch_of_images(image_paths):
+    batch_histograms = {}
+    for image_path in image_paths:
+        if image_path.lower().endswith(('.png', '.jpg', '.jpeg')):
             histogram = imageToHistogram(image_path)
-            image_data[image_name] = histogram.tolist()
+            batch_histograms[os.path.basename(image_path)] = histogram.tolist()
+    return batch_histograms
+
+
+def process_images_to_json(image_folder, batch_size=50):
+    image_paths = [os.path.join(image_folder, img)
+                   for img in os.listdir(image_folder)]
+
+    # Create batches of image paths
+    batches = [image_paths[i:i + batch_size]
+               for i in range(0, len(image_paths), batch_size)]
+
+    # Use multiprocessing to process each batch
+    with Pool() as pool:
+        results = pool.map(process_batch_of_images, batches)
+
+    # Combine results from all batches
+    all_histograms = {}
+    for batch_result in results:
+        all_histograms.update(batch_result)
 
     with open('image_histograms.json', 'w') as json_file:
-        json.dump(image_data, json_file)
+        json.dump(all_histograms, json_file)
 
 
 def clear_image_directory(directory):
@@ -40,6 +81,9 @@ def clear_image_directory(directory):
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+
+    start_time = time.time()
+
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
 
@@ -68,9 +112,15 @@ def upload_file():
     finally:
         os.remove(temp_zip_path)
 
+    extraction_time = time.time()
+
     # Process the extracted images and create a JSON file
     process_images_to_json(image_dir)
-
+    processing_time = time.time()
+    total_time = processing_time - start_time
+    print(f"Total Time: {total_time:.2f} seconds")
+    print(f"Extraction Time: {extraction_time - start_time:.2f} seconds")
+    print(f"Processing Time: {processing_time - extraction_time:.2f} seconds")
     return jsonify({"message": "File uploaded, extracted, and processed successfully"}), 200
 
 
@@ -83,24 +133,44 @@ def search_image():
     if target_file.filename == '':
         return jsonify({"error": "No selected file"}), 400
 
-    # Process the target image to get its histogram
+    start_time = time.time()
+
     target_histogram = imageToHistogram(target_file)
 
-    # Read the histogram JSON file
     with open('image_histograms.json', 'r') as json_file:
         image_histograms = json.load(json_file)
 
-    # Compare histograms and calculate similarity
-    similarities = {}
-    for image_name, histogram in image_histograms.items():
-        similarity = cosineSimilarity(np.array(histogram), target_histogram)
-        similarities[image_name] = similarity
-
-    # Sort by similarity score (higher is more similar)
+    # Filter and sort the similarities
+    similarities = {
+        image_name: cosineSimilarity(np.array(histogram), target_histogram)
+        for image_name, histogram in image_histograms.items()
+    }
+    filtered_similarities = {k: v for k, v in similarities.items() if v >= 0.6}
     sorted_similarities = sorted(
-        similarities.items(), key=lambda x: x[1], reverse=True)
+        filtered_similarities.items(), key=lambda x: x[1], reverse=True)
 
-    return jsonify(sorted_similarities), 200
+    end_time = time.time()
+    search_duration = end_time - start_time
+
+    # Pagination logic (Example: paginate results)
+    page = int(request.args.get('page', 1))  # Default to first page
+    per_page = 6  # Number of items per page
+    total_pages = len(sorted_similarities) // per_page + \
+        (1 if len(sorted_similarities) % per_page else 0)
+    paginated_results = sorted_similarities[(page-1)*per_page: page*per_page]
+
+    return jsonify({
+        "search_duration": search_duration,
+        "total_images": len(filtered_similarities),
+        "current_page": page,
+        "total_pages": total_pages,
+        "images": paginated_results
+    }), 200
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
 
 # @app.route('/search', methods=['POST'])
 # def search_image():
@@ -133,7 +203,3 @@ def search_image():
 #                        for name, score in sorted_similarities]
 
 #     return jsonify(similarity_list), 200
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
