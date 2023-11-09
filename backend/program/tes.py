@@ -100,28 +100,114 @@ def imageToHistogram(image_path):
     img_np = np.array(img)
 
     hsv_arr = rgb_to_hsv(img_np)
-    hsv_arr_int = hsv_arr.astype(int)
+    hsv_arr_int = hsv_arr.astype("int64")
 
     histogram_arr = makeHistogram(hsv_arr_int)
     return histogram_arr
 
 
 def cosineSimilarity(histo1, histo2):
+    histo1 = np.array(histo1).astype(np.int64)
+    histo2 = np.array(histo2).astype(np.int64)
     dot_product = np.dot(histo1, histo2)
     lenghtHisto1 = math.sqrt(np.dot(histo1, histo1))
     lengthHisto2 = math.sqrt(np.dot(histo2, histo2))
     result = dot_product / (lenghtHisto1 * lengthHisto2)
     return result
 
+def imageBlockToHistogram(image_path):
+    np.seterr(divide='ignore', invalid='ignore')
 
-start = time.time()
-myhisto1 = imageToHistogram("image1.jpeg")
-myhisto2 = imageToHistogram("image2.jpeg")
-myhisto1 = myhisto1.astype(np.int64)
-myhisto2 = myhisto2.astype(np.int64)
-print(myhisto1)
-print(myhisto2)
-cosinus = cosineSimilarity(myhisto1, myhisto2)
-print("cosinus = " + str(cosinus))
-end = time.time()
-print("Time : " + str(end - start))
+    img = Image.open(image_path)
+    if img.mode != 'RGB':
+        img = img.convert('RGB')
+
+    img_np = np.array(img)
+
+    block1 = img_np[:img.width//3, :img.height//3, :]
+    hsv_arr1 = rgb_to_hsv(block1)
+    hsv_arr1_int = hsv_arr1.astype("int64")
+
+    histogram_arr1 = makeHistogram(hsv_arr1_int)
+
+    block2 = img_np[:img.width//3, img.height//3:2*img.height//3, :]
+    hsv_arr2 = rgb_to_hsv(block2)
+    hsv_arr2_int = hsv_arr2.astype("int64")
+
+    histogram_arr2 = makeHistogram(hsv_arr2_int)
+
+    block3 = img_np[:img.width//3, 2*img.height//3:3*img.height//3, :]
+    hsv_arr3 = rgb_to_hsv(block3)
+    hsv_arr3_int = hsv_arr3.astype("int64")
+
+    histogram_arr3 = makeHistogram(hsv_arr3_int)
+
+    block4 = img_np[img.width//3:2*img.width//3, :img.height//3, :]
+    hsv_arr4 = rgb_to_hsv(block4)
+    hsv_arr4_int = hsv_arr4.astype("int64")
+
+    histogram_arr4 = makeHistogram(hsv_arr4_int)
+    
+    block5 = img_np[img.width//3:2*img.width//3, img.height//3:2*img.height//3, :]
+    hsv_arr5 = rgb_to_hsv(block5)
+    hsv_arr5_int = hsv_arr5.astype("int64")
+
+    histogram_arr5 = makeHistogram(hsv_arr5_int)
+
+    block6 = img_np[img.width//3:2*img.width//3, 2*img.height//3:3*img.height//3, :]
+    hsv_arr6 = rgb_to_hsv(block6)
+    hsv_arr6_int = hsv_arr6.astype("int64")
+
+    histogram_arr6 = makeHistogram(hsv_arr6_int)
+
+    block7 = img_np[2*img.width//3:img.width, :img.height//3, :]
+    hsv_arr7 = rgb_to_hsv(block7)
+    hsv_arr7_int = hsv_arr7.astype("int64")
+
+    histogram_arr7 = makeHistogram(hsv_arr7_int)
+
+    block8 = img_np[2*img.width//3:img.width, img.height//3:2*img.height//3, :]
+    hsv_arr8 = rgb_to_hsv(block8)
+    hsv_arr8_int = hsv_arr8.astype("int64")
+
+    histogram_arr8 = makeHistogram(hsv_arr8_int)
+
+    block9 = img_np[2*img.width//3:img.width, 2*img.height//3:img.height, :]
+    hsv_arr9 = rgb_to_hsv(block9)
+    hsv_arr9_int = hsv_arr9.astype("int64")
+
+    histogram_arr9 = makeHistogram(hsv_arr9_int)
+
+    return histogram_arr1, histogram_arr2, histogram_arr3, histogram_arr4, histogram_arr5, histogram_arr6, histogram_arr7, histogram_arr8, histogram_arr9
+
+mode = input()
+path1 = "apel.jpg"
+path2 = "apel.jpg"
+if(mode == "global"):
+    start = time.time()
+    myhisto1 = imageToHistogram(path1)
+    myhisto2 = imageToHistogram(path2)
+    myhisto1 = myhisto1.astype(np.int64)
+    myhisto2 = myhisto2.astype(np.int64)
+    cosinus = cosineSimilarity(myhisto1, myhisto2)
+    print("cosinus = " + str(cosinus))
+    end = time.time()
+    print("Time : " + str(end - start))
+else:
+    start = time.time()
+    myhisto1 = np.array(imageBlockToHistogram(path1)).astype("int64")
+    myhisto2 = np.array(imageBlockToHistogram(path2)).astype("int64")
+    cosinus = 0
+    cosinus += cosineSimilarity(myhisto1[0], myhisto2[0])
+    cosinus += cosineSimilarity(myhisto1[1], myhisto2[1])
+    cosinus += cosineSimilarity(myhisto1[2], myhisto2[2])
+    cosinus += cosineSimilarity(myhisto1[3], myhisto2[3])
+    cosinus += cosineSimilarity(myhisto1[4], myhisto2[4])
+    cosinus += cosineSimilarity(myhisto1[5], myhisto2[5])
+    cosinus += cosineSimilarity(myhisto1[6], myhisto2[6])
+    cosinus += cosineSimilarity(myhisto1[7], myhisto2[7])
+    cosinus += cosineSimilarity(myhisto1[8], myhisto2[8])
+    cosinus /= 9
+    print("cosinus = " + str(cosinus))
+    end = time.time()
+    print("Time : " + str(end - start))
