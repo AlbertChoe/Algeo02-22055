@@ -181,8 +181,8 @@ def imageBlockToHistogram(image_path):
     return histogram_arr1, histogram_arr2, histogram_arr3, histogram_arr4, histogram_arr5, histogram_arr6, histogram_arr7, histogram_arr8, histogram_arr9
 
 mode = input()
-path1 = "apel.jpg"
-path2 = "apel.jpg"
+path1 = "Black_colour.jpg"
+path2 = "Solid_white.png"
 if(mode == "global"):
     start = time.time()
     myhisto1 = imageToHistogram(path1)
