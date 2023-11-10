@@ -7,7 +7,7 @@ import json
 from PIL import Image
 import numpy as np
 # Assuming your image processing functions (rgb_to_hsv, hsv_to_hsvFeature, makeHistogram, imageToHistogram) are defined
-from hitungan import imageToHistogram, cosineSimilarity
+from hitungan import imageBlockToHistogram, cosineSimilarity
 import time
 from multiprocessing import Pool
 
@@ -41,13 +41,24 @@ os.makedirs(image_dir, exist_ok=True)
 
 #     with open('image_histograms.json', 'w') as json_file:
 #         json.dump(image_data, json_file)
+# def process_batch_of_images(image_paths):
+#     batch_histograms = {}
+#     for image_path in image_paths:
+#         if image_path.lower().endswith(('.png', '.jpg', '.jpeg')):
+#             histogram = imageToHistogram(image_path)
+#             batch_histograms[os.path.basename(image_path)] = histogram.tolist()
+#     return batch_histograms
+
 def process_batch_of_images(image_paths):
     batch_histograms = {}
     for image_path in image_paths:
         if image_path.lower().endswith(('.png', '.jpg', '.jpeg')):
-            histogram = imageToHistogram(image_path)
-            batch_histograms[os.path.basename(image_path)] = histogram.tolist()
+            block_histograms = imageBlockToHistogram(image_path)
+            batch_histograms[os.path.basename(image_path)] = [
+                hist.tolist() for hist in block_histograms]
     return batch_histograms
+
+# Adjust process_images_to_json to use the modified process_batch_of_images
 
 
 def process_images_to_json(image_folder, batch_size=50):
@@ -135,33 +146,46 @@ def search_image():
 
     start_time = time.time()
 
-    target_histogram = imageToHistogram(target_file)
+    # Assuming imageBlockToHistogram is a function you've defined to process the image into block histograms
+    target_block_histograms = imageBlockToHistogram(target_file)
 
     with open('image_histograms.json', 'r') as json_file:
         image_histograms = json.load(json_file)
 
-    # Filter and sort the similarities
-    similarities = {
-        image_name: cosineSimilarity(np.array(histogram), target_histogram)
-        for image_name, histogram in image_histograms.items()
-    }
-    filtered_similarities = {k: v for k, v in similarities.items() if v >= 0.6}
-    sorted_similarities = sorted(
-        filtered_similarities.items(), key=lambda x: x[1], reverse=True)
+    # Initialize an empty dictionary to store similarities
+    similarities = {}
+
+    # Iterate over each image's histograms
+    for image_name, block_histograms in image_histograms.items():
+        total_similarity = 0
+
+        # Compare each block's histogram
+        for i, hist in enumerate(block_histograms):
+            total_similarity += cosineSimilarity(
+                np.array(hist), target_block_histograms[i])
+
+        # Average the similarity across all blocks
+        avg_similarity = total_similarity / len(block_histograms)
+        if avg_similarity >= 0.6:  # Threshold of 60%
+            similarities[image_name] = avg_similarity
 
     end_time = time.time()
     search_duration = end_time - start_time
 
-    # Pagination logic (Example: paginate results)
+    # Pagination logic
     page = int(request.args.get('page', 1))  # Default to first page
     per_page = 6  # Number of items per page
-    total_pages = len(sorted_similarities) // per_page + \
-        (1 if len(sorted_similarities) % per_page else 0)
+    total_pages = len(similarities) // per_page + \
+        (1 if len(similarities) % per_page else 0)
+
+    # Convert the dictionary to a list and apply pagination
+    sorted_similarities = sorted(
+        similarities.items(), key=lambda x: x[1], reverse=True)
     paginated_results = sorted_similarities[(page-1)*per_page: page*per_page]
 
     return jsonify({
         "search_duration": search_duration,
-        "total_images": len(filtered_similarities),
+        "total_images": len(similarities),
         "current_page": page,
         "total_pages": total_pages,
         "images": paginated_results

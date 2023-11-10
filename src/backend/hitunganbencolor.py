@@ -4,9 +4,6 @@ import time
 import math
 
 
-import numpy as np
-
-
 def rgb_to_hsv(img_np):
     img_np = img_np / 255.0
 
@@ -25,20 +22,17 @@ def rgb_to_hsv(img_np):
     mask_g = (cmax == g) & mask
     mask_b = (cmax == b) & mask
 
-    delta_safe = np.where(delta == 0, 1, delta)  # Avoid division by zero
-
     h[delta == 0] = 0
-    h[mask_r] = 60 * (((g - b) / delta_safe)[mask_r] % 6)
-    h[mask_g] = 60 * (((b - r) / delta_safe)[mask_g] + 2)
-    h[mask_b] = 60 * (((r - g) / delta_safe)[mask_b] + 4)
+    h[mask_r] = 60 * (((g - b) / delta)[mask_r] % 6)
+    h[mask_g] = 60 * (((b - r) / delta)[mask_g] + 2)
+    h[mask_b] = 60 * (((r - g) / delta)[mask_b] + 4)
 
     # Calculate Saturation
     s[cmax != 0] = delta[cmax != 0] / v[cmax != 0]
     s[cmax == 0] = 0
+    # Set hue to 0 for black/white colors
 
-    # Assume hsv_to_hsvFeature is a function you have defined elsewhere
     h, s, v = hsv_to_hsvFeature(h, s, v)
-
     # Combine H, S, V into one matrix
     hsv = np.stack((h, s, v), axis=-1)
 
@@ -95,45 +89,21 @@ def makeHistogram(array):
     return temp_arr
 
 
-# def imageToHistogram(image_path):
+def imageToHistogram(image_path):
 
-#     np.seterr(divide='ignore', invalid='ignore')
+    np.seterr(divide='ignore', invalid='ignore')
 
-#     img = Image.open(image_path)
-#     if img.mode != 'RGB':
-#         img = img.convert('RGB')
-
-#     img_np = np.array(img)
-
-#     hsv_arr = rgb_to_hsv(img_np)
-#     hsv_arr_int = hsv_arr.astype(int)
-
-#     histogram_arr = makeHistogram(hsv_arr_int)
-#     return histogram_arr
-
-
-def process_block(img_np, x_start, x_end, y_start, y_end):
-    block = img_np[x_start:x_end, y_start:y_end, :]
-    hsv_arr = rgb_to_hsv(block)
-    hsv_arr_int = hsv_arr.astype("int64")
-    return makeHistogram(hsv_arr_int)
-
-
-def imageBlockToHistogram(image_path):
     img = Image.open(image_path)
     if img.mode != 'RGB':
         img = img.convert('RGB')
+
     img_np = np.array(img)
 
-    histograms = []
-    for i in range(3):
-        for j in range(3):
-            x_start, x_end = i * img.height // 3, (i + 1) * img.height // 3
-            y_start, y_end = j * img.width // 3, (j + 1) * img.width // 3
-            histograms.append(process_block(
-                img_np, x_start, x_end, y_start, y_end))
+    hsv_arr = rgb_to_hsv(img_np)
+    hsv_arr_int = hsv_arr.astype(int)
 
-    return histograms
+    histogram_arr = makeHistogram(hsv_arr_int)
+    return histogram_arr
 
 
 def cosineSimilarity(histo1, histo2):
@@ -144,16 +114,6 @@ def cosineSimilarity(histo1, histo2):
     lengthHisto2 = math.sqrt(np.dot(histo2, histo2))
     result = dot_product / (lenghtHisto1 * lengthHisto2)
     return result
-
-# def cosineSimilarityBlock(histo1, histo2):
-#     histo1 = histo1.astype(np.int64)
-#     histo2 = histo2.astype(np.int64)
-
-#     dot_product = np.dot(histo1, histo2)
-#     lenghtHisto1 = math.sqrt(np.dot(histo1, histo1))
-#     lengthHisto2 = math.sqrt(np.dot(histo2, histo2))
-#     result = dot_product / (lenghtHisto1 * lengthHisto2)
-#     return result
 
 
 # start = time.time()

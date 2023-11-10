@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Pagination from './Pagination';
+// import Pagination from './Pagination';
 
 function Search() {
     const [zipFile, setZipFile] = useState(null);
@@ -52,7 +52,7 @@ function Search() {
 
             {/* Similar structure for the image file input and search button */}
             {/* Similar structure for the toggle buttons with Tailwind CSS styling */}
-            <Pagination/>
+            {/* <Pagination/> */}
 
         </div>
     );
