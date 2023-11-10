@@ -128,13 +128,14 @@ def imageBlockToHistogram(image_path):
         for j in range(3):
             block = img_np[(i)*img.width//3:(i+1)*img.width//3, j*img.height//3:(j+1)*img.height//3, :]
             hsv_arr = rgb_to_hsv(block).astype("int64")
+
             histogram = makeHistogram(hsv_arr)
             hist.append(histogram)
     return hist
 
 mode = input()
-path1 = "image/1.jpg"
-path2 = "image/2.jpg"
+path1 = "image/9.jpg"
+path2 = "image/10.jpg"
 if(mode == "global"):
     start = time.time()
     myhisto1 = imageToHistogram(path1)
