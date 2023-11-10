@@ -29,28 +29,19 @@
   animation: zoomIn 1s ease-out forwards;
 }
 
-@keyframes typing {
-  from { width: 0; }
-  to { width: 100%; }
-}
-
-@keyframes blink-caret {
-  50% { border-color: transparent; }
+@keyframes typing-and-blink-caret {
+  0%, 50% { width: 0; border-right: .15em solid orange; }
+  50%, 100% { width: 100%; border-right: .15em solid orange; }
+  100% { width: 100%; border-right: transparent; }
 }
 
 .typing {
-  
   overflow: hidden; /* Ensures the content is not displayed outside the box */
   border-right: .15em solid orange; /* The caret (cursor) */
   white-space: nowrap; /* Keeps the content on a single line */
-  margin: 0 0; /* Gives that scrolling effect as the typing happens */
   letter-spacing: .15em; /* Adjust as needed */
-  animation: 
-    typing 6s steps(40, end) infinite,
-    blink-caret .75s step-end infinite;
+  animation: typing-and-blink-caret 12s steps(40, end) forwards; /* Adjust duration as needed */
 }
-
-
 /* untuk launch button */
 .btn2 span:first-child{
   transform: translateX(-101%);
@@ -58,4 +49,8 @@
 }
 .btn2:hover span{
   transform: translateX(0)
+}
+
+.transition-opacity {
+  transition: opacity 1s ease-in-out;
 }

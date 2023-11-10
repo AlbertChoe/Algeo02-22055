@@ -5,20 +5,20 @@ const Navbar = () => {
     const location = useLocation(); // Hook to get the current location
     const showLaunchButton = location.pathname !== '/technology';
     return (
-        <nav className=" fixed w-full h-20 bg-gray-500">
+        <nav className=" fixed w-full h-20 text-white pt-[20px] z-50">
                 <nav className="flex flex-row justify-between items-center w-[92%] mx-auto">
-                    <div className="text-5xl font-reemkufi font-extrabold">
+                    <div className="text-4xl font-reemkufi font-extrabold">
                         {/* Uncomment and replace src with your logo */}
                     {/* <img className="w-16 cursor-pointer" src="" alt="..."/> */}
                     <Link to="/"> SnapTwin </Link>
 
                     </div>
-                    <div className="duration-500 min-h-[10vh]  w-auto  flex items-center     ">
+                    <div className="duration-500 min-h-[10vh]  w-auto  flex items-center  text-white   ">
                         <ul className="flex flex-row md:gap-[3vw] 2xl:gap-[6vw]   py-3 px-3   ">
                         <li>
                             <div className="py-3">
-                                <Link to="/" class="group text-black transition-all duration-300 ease-in-out" >
-                                <span class="bg-left-bottom bg-gradient-to-r from-pink-500 to-pink-500 bg-[length:0%_5px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg  font-medium text-xl ">
+                                <Link to="/" class="group text-white transition-all duration-300 ease-in-out" >
+                                <span class="bg-left-bottom bg-gradient-to-r from-green-500 to-green-500 bg-[length:0%_5px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg  font-medium text-l ">
                                 Technology
                                 </span>
                                 </Link>
@@ -29,8 +29,8 @@ const Navbar = () => {
                             </li>
                         <li>
                             <div className="py-3">
-                                <Link to="/Aboutus" class="group text-black transition-all duration-300 ease-in-out" href="">
-                                <span class="bg-left-bottom bg-gradient-to-r from-pink-500 to-pink-500 bg-[length:0%_6px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg  font-medium text-xl ">
+                                <Link to="/Aboutus" class="group text-white transition-all duration-300 ease-in-out" href="">
+                                <span class="bg-left-bottom bg-gradient-to-r from-green-500 to-green-500 bg-[length:0%_6px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg  font-medium text-l ">
                                     About us
                                 </span>
                                 </Link>
@@ -49,8 +49,8 @@ const Navbar = () => {
                         </li> */}
                         <li>
                             <div className="py-3">
-                                <Link to="/" class="group text-black transition-all duration-300 ease-in-out" >
-                                <span class="bg-left-bottom bg-gradient-to-r from-pink-500 to-pink-500 bg-[length:0%_6px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg  font-medium text-xl ">
+                                <Link to="/" class="group text-white transition-all duration-300 ease-in-out" >
+                                <span class="bg-left-bottom bg-gradient-to-r from-green-500 to-green-500 bg-[length:0%_6px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg  font-medium text-l ">
                                     How to use
                                 </span>
                                 </Link>
@@ -64,9 +64,9 @@ const Navbar = () => {
                 </div>
                 {/* Conditionally render Launch button or a placeholder */}
                 {showLaunchButton ? (
-                    <button className="btn2 px-10 py-5 relative border border-white uppercase font-semibold tracking-wider leading-none overflow-hidden hover:text-teal-600" type="button">
+                    <button className="btn2 p-[15px] relative rounded-lg border border-white uppercase font-semibold tracking-wider leading-none overflow-hidden hover:text-teal-600 hover:text-black" type="button">
                         <span className="absolute inset-0 bg-white"></span>
-                        <span className="absolute inset-0 flex justify-center items-center font-bold"> 
+                        <span className="absolute inset-0 flex justify-center items-center font-normal"> 
                         <Link to="/Search">Launch</Link>
                         </span>
                            
@@ -74,12 +74,12 @@ const Navbar = () => {
                     </button>
                 ) : (
                     <button 
-                            className={`btn2 px-10 py-5 relative cursor-default border uppercase font-semibold tracking-wider leading-none overflow-hidden ${location.pathname === '/technology' ? 'opacity-0 cursor-not-allowed border-gray-500 text-gray-500 bg-gray-500' : 'hover:text-teal-600 border-white'}`} 
+                            className={`btn2 p-[15px] relative rounded-lg cursor-default border uppercase font-semibold tracking-wider leading-none overflow-hidden ${location.pathname === '/technology' ? 'opacity-0 cursor-not-allowed border-gray-500 text-gray-500 bg-gray-500' : 'hover:text-teal-600 border-white'}`} 
                             type="button"
                             disabled={location.pathname === '/technology'}
                         >
                             <span className="absolute inset-0 "></span>
-                            <span className="absolute inset-0 flex justify-center items-center font-bold"> 
+                            <span className="absolute inset-0 flex justify-center items-center font-normal"> 
                                 Launch
                             </span>
                             Launch
