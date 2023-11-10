@@ -5,3 +5,4 @@ src/backend/image
 src/backend/venv
 src/backend/env
 __pycache__
+src/backend/venv/Scripts/activate
