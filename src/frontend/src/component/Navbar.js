@@ -49,7 +49,7 @@ const Navbar = () => {
                         </li> */}
                         <li>
                             <div className="py-3">
-                                <Link to="/" class="group text-white transition-all duration-300 ease-in-out" >
+                                <Link to="/HowToUse" class="group text-white transition-all duration-300 ease-in-out" >
                                 <span class="bg-left-bottom bg-gradient-to-r from-green-500 to-green-500 bg-[length:0%_6px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg  font-medium text-l ">
                                     How to use
                                 </span>

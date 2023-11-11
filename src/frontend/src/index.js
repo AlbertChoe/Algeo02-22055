@@ -14,6 +14,7 @@ import Firstpage from './component/Firstpage';
 import Aboutus from './component/AboutUs';
 import Search from './component/Search';
 import Search2 from './component/Search2';
+import Guide from './component/Guide';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -28,6 +29,7 @@ root.render(
         <Route path="/Search" element={<Search2 />} />
         <Route path="/AboutUs" element={<Aboutus />} />
         <Route path="/" element={<Firstpage />} />
+        <Route path="/HowToUse" element={<Guide/>} />
         {/* // Define other routes here */}
       </Routes>
     </Router>

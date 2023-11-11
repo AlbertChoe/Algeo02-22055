@@ -70,7 +70,7 @@ function Firstpage() {
               <h1 className='text-7xl font-extrabold zoom-in'>Snap Twins</h1>
               <h2 className='text-4xl font-normal mt-[20px] mb-[50px] tracking-widest'>Content-Based Information Retrieval Project</h2>
               <p className='text-2xl typing font-light text-[#c7d4ca]'>Matching Your Image In Just One Click.</p>
-              <button className='text-2xl font-bold border-[#00ff3b]  text-black rounded-lg mt-[30px] p-[12px] bg-[#00ff3b] hover:bg-green-500'>Launch App</button>
+              <button className='text-2xl font-bold border-[#00ff3b]  text-black rounded-lg mt-[30px] p-[12px] bg-[#00ff3b] hover:bg-green-500'>LAUNCH APP</button>
             </div>
         </div>
     );
