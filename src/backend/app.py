@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, url_for, send_from_directory
 import os
 import zipfile
 from werkzeug.utils import secure_filename
@@ -12,7 +12,9 @@ import time
 from multiprocessing import Pool
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static/image')
+
+
 CORS(app)
 
 image_dir = 'image'
@@ -135,6 +137,11 @@ def upload_file():
     return jsonify({"message": "File uploaded, extracted, and processed successfully"}), 200
 
 
+@app.route('/images/<filename>')
+def send_image(filename):
+    return send_from_directory('static/image', filename)
+
+
 @app.route('/search', methods=['POST'])
 def search_image():
     if 'file' not in request.files:
@@ -183,7 +190,8 @@ def search_image():
         "images": [
             {
                 "image_name": image_name,
-                # similarity percentage
+                # Construct the URL using the new route
+                "image_url": url_for('send_image', filename=image_name),
                 "similarity": round(similarity * 100, 2)
             }
             for image_name, similarity in paginated_results

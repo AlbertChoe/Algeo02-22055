@@ -6,15 +6,46 @@ function Search2() {
     const [zipFile, setZipFile] = useState(null);
     const [isTextureMode, setIsTextureMode] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1); // Track the current page
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0); // Track total pages
     const [imageFile, setImageFile] = useState(null);
-
+    const [totalImages, setTotalImages] = useState(0);
+    const [searchDuration, setSearchDuration] = useState(0);
+    
     
     useEffect(() => {
         setImageURL(null);
         setImageFile(null);
         localStorage.removeItem('imageURL'); // Remove from localStorage if you're using it
     }, []);
+
+
+    const fetchImages = (page) => {
+        const formData = new FormData();
+        formData.append('file', imageFile);
+
+        fetch(`http://localhost:5000/search?page=${page}`, {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            setSearchResults(data.images || []);
+            setTotalPages(Math.max(0, data.total_pages)); // Ensure non-negative
+            setCurrentPage(data.current_page || 1);
+            setTotalImages(data.total_images || 0);
+            setSearchDuration(data.search_duration || 0);
+        })
+        .catch(error => {
+            console.error(error);
+            setSearchResults([]);
+            setTotalPages(0);
+        });
+    };
+
+    useEffect(() => {
+        fetchImages(currentPage);
+    }, [currentPage]);
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -55,26 +86,14 @@ function Search2() {
         setImageURL(null);
     };
 
+
     const handleSearch = () => {
         if (!imageFile) {
             alert("Please upload an image first.");
             return;
         }
-
-        const formData = new FormData();
-        formData.append('file', imageFile); // imageFile needs to be set when an image is selected
-
-        fetch('http://localhost:5000/search', {
-            method: 'POST',
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            setSearchResults(data.images); // Assuming 'data.images' is the format of the response
-            setCurrentPage(1); // Reset to first page on new search
-        })
-        .catch(error => console.error(error));
+        setCurrentPage(1);
+        fetchImages(1); // Fetch images for the first page
     };
 
 
@@ -165,23 +184,62 @@ function Search2() {
                 </div>
 
 
-                {/* Display search results */}
-            <div>
-                        {Array.isArray(searchResults) && searchResults.map((result, index) => (
-                <div key={index}>
-                    <p>{result.image_name}</p>
-                    <p>Similarity: {result.similarity_score}</p>
-                </div>
-            ))}
-            </div>
+                {/* Display search results in here i want to show total image result and the time taken to search it  */}
+                {/* {Array.isArray(searchResults) && (
+                searchResults.length > 0 ? (
+                    <>
+                        <div className="my-6 p-4 bg-blue-100 rounded-lg shadow">
+                            <h3 className="text-xl font-semibold text-blue-800">Search Results:</h3>
+                            <p className="text-blue-600">Total Images: <span className="font-bold">{totalImages}</span></p>
+                            <p className="text-blue-600">Search Duration: <span className="font-bold">{searchDuration.toFixed(2)} seconds</span></p>
+                        </div>
+                        <ImagePagination 
+                            searchResults={searchResults} 
+                            currentPage={currentPage} 
+                            setCurrentPage={setCurrentPage} 
+                            totalPages={totalPages}
+                        />
+                    </>
+                ) : (
+                    <div className="my-6 p-4 bg-red-100 rounded-lg shadow">
+                        <h3 className="text-xl font-semibold text-red-800">No Results Found</h3>
+                        <p className="text-red-600">There are no similar images found in the dataset.</p>
+                    </div>
+                )
+            )} */}
             </div>
             {/* ImagePagination component */}
-            <ImagePagination 
-                searchResults={searchResults} 
-                currentPage={currentPage} 
-                setCurrentPage={setCurrentPage} 
-                searchCriteria={isTextureMode ? 'texture' : 'color'} 
-            />
+             {/* Render ImagePagination only when searchResults is an array */}
+             {/* {Array.isArray(searchResults) && searchResults.length > 0 && (
+                <ImagePagination 
+                    searchResults={searchResults} 
+                    currentPage={currentPage} 
+                    setCurrentPage={setCurrentPage} 
+                    totalPages={totalPages}
+                />
+            )} */}
+            {Array.isArray(searchResults) && (
+                searchResults.length > 0 ? (
+                    <>
+                        <div className="my-6 p-4 bg-blue-100 rounded-lg shadow">
+                            <h3 className="text-xl font-semibold text-blue-800">Search Results:</h3>
+                            <p className="text-blue-600">Total Images: <span className="font-bold">{totalImages}</span></p>
+                            <p className="text-blue-600">Search Duration: <span className="font-bold">{searchDuration.toFixed(2)} seconds</span></p>
+                        </div>
+                        <ImagePagination 
+                            searchResults={searchResults} 
+                            currentPage={currentPage} 
+                            setCurrentPage={setCurrentPage} 
+                            totalPages={totalPages}
+                        />
+                    </>
+                ) : (
+                    <div className="my-6 p-4 bg-red-100 rounded-lg shadow">
+                        <h3 className="text-xl font-semibold text-red-800">No Results Found</h3>
+                        <p className="text-red-600">There are no similar images found in the dataset.</p>
+                    </div>
+                )
+            )}
         </div>
     );
 }
