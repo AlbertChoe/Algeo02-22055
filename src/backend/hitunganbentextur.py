@@ -57,8 +57,8 @@ def cosineSimilarity(histo1,histo2):
     return result
 
 mulai = time.time()
-vektor1 = imageToTextureVektor("image1.jpg")
-vektor2 = imageToTextureVektor("image2.jpeg")
+vektor1 = imageToTextureVektor("image/1.jpg")
+vektor2 = imageToTextureVektor("image/2.jpg")
 cosinus = cosineSimilarity(vektor1,vektor2)
 end = time.time()
 

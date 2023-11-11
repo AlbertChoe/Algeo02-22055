@@ -21,7 +21,9 @@ def createOccurenceMatrix(grayImg):
             idxRow = grayImg[i,j] 
             idxCol = grayImg[i,j+1]
             occMat[idxRow,idxCol] += 1
-    return occMat
+    normmat = (occMat + np.transpose(occMat))
+    normmat = normmat/np.sum(normmat)
+    return normmat
 
 def getTextureFeatures(occMat):
     occMat = np.array(occMat)
@@ -30,12 +32,12 @@ def getTextureFeatures(occMat):
     entropy = 0
     for i in range(256):
         for j in range(256):
-            contrast += occMat[i,j] * (i-j)**2
-            homogeneity += occMat[i,j]/ (1 + (i-j)**2)
+            contrast += occMat[i,j] * math.pow((i-j),2)
+            homogeneity += occMat[i,j]/ (1 + math.pow((i-j),2))
             if occMat[i,j] != 0:
                 entropy += occMat[i,j] * math.log(occMat[i,j])
     
-    return np.array((contrast, homogeneity, entropy))
+    return np.array([contrast, homogeneity, entropy])
 
 def cosineSimilarity(a, b):
     a = np.array(a).astype(np.int64)
@@ -48,8 +50,8 @@ def cosineSimilarity(a, b):
 
 if __name__ == "__main__":
     st = time.time()
-    path1 = "image/9.jpg"
-    path2 = "image/1.jpg"
+    path1 = "image/1.jpg"
+    path2 = "image/2.jpg"
     v1 = getTextureFeatures(createOccurenceMatrix(convertImageToGrayScale(path1)))
     v2 = getTextureFeatures(createOccurenceMatrix(convertImageToGrayScale(path2)))
     print("Cos : ", cosineSimilarity(v1,v2))
