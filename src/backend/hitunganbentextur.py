@@ -36,8 +36,10 @@ def getCHE(matriks_glcm):
     contrast = 0
     homogeneity = 0
     entropy = 0
+    dissimilarity = 0
     for i in range(len(matriks_glcm)):
         for j in range(len(matriks_glcm[0])):
+            dissimilarity += (matriks_glcm[i][j] * (i - j))
             contrast += (matriks_glcm[i][j] * (i - j) * (i - j))
             homogeneity += ((matriks_glcm[i][j])/(1 + pow((i-j),2)))
             if(matriks_glcm[i][j] > 0):
@@ -46,7 +48,7 @@ def getCHE(matriks_glcm):
             
 
     entropy = entropy * -1
-    vektor = [contrast,homogeneity,entropy]
+    vektor = [contrast,homogeneity,entropy, dissimilarity]
     return vektor
 
 def cosineSimilarity(histo1,histo2):
@@ -57,7 +59,7 @@ def cosineSimilarity(histo1,histo2):
     return result
 
 mulai = time.time()
-vektor1 = imageToTextureVektor("image/1.jpg")
+vektor1 = imageToTextureVektor("image/10.jpg")
 vektor2 = imageToTextureVektor("image/2.jpg")
 cosinus = cosineSimilarity(vektor1,vektor2)
 end = time.time()

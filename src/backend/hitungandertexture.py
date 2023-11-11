@@ -16,28 +16,22 @@ def convertImageToGrayScale(Path):
 def createOccurenceMatrix(grayImg):
     grayImg = np.array(grayImg)
     occMat = np.zeros((256,256))
-    for i in range(grayImg.shape[0]-1):
-        for j in range(grayImg.shape[1]-1):
-            idxRow = grayImg[i,j] 
-            idxCol = grayImg[i,j+1]
-            occMat[idxRow,idxCol] += 1
+    i_values, j_values = grayImg[:-1, :-1], grayImg[:-1, 1:]
+    np.add.at(occMat, (i_values, j_values), 1)
     normmat = (occMat + np.transpose(occMat))
     normmat = normmat/np.sum(normmat)
     return normmat
 
 def getTextureFeatures(occMat):
     occMat = np.array(occMat)
-    contrast = 0
-    homogeneity = 0
-    entropy = 0
-    for i in range(256):
-        for j in range(256):
-            contrast += occMat[i,j] * math.pow((i-j),2)
-            homogeneity += occMat[i,j]/ (1 + math.pow((i-j),2))
-            if occMat[i,j] != 0:
-                entropy += occMat[i,j] * math.log(occMat[i,j])
-    
-    return np.array([contrast, homogeneity, entropy])
+    i_values, j_values = np.meshgrid(np.arange(256), np.arange(256), indexing='ij')
+    dissimilarity = np.sum(occMat * np.abs(i_values - j_values))
+    contrast = np.sum(occMat * (i_values - j_values)**2)
+    homogeneity = np.sum(occMat / (1 + (i_values - j_values)**2))
+    # Menghindari log 0
+    epsilon = 1e-10
+    entropy = np.sum(occMat * np.log(occMat + epsilon))
+    return np.array([contrast, -dissimilarity, homogeneity, -entropy])
 
 def cosineSimilarity(a, b):
     a = np.array(a).astype(np.int64)
@@ -50,8 +44,8 @@ def cosineSimilarity(a, b):
 
 if __name__ == "__main__":
     st = time.time()
-    path1 = "image/1.jpg"
-    path2 = "image/2.jpg"
+    path1 = "image/2.jpg"
+    path2 = "image/10.jpg"
     v1 = getTextureFeatures(createOccurenceMatrix(convertImageToGrayScale(path1)))
     v2 = getTextureFeatures(createOccurenceMatrix(convertImageToGrayScale(path2)))
     print("Cos : ", cosineSimilarity(v1,v2))
