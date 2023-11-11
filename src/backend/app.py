@@ -146,50 +146,51 @@ def search_image():
 
     start_time = time.time()
 
-    # Assuming imageBlockToHistogram is a function you've defined to process the image into block histograms
     target_block_histograms = imageBlockToHistogram(target_file)
 
     with open('image_histograms.json', 'r') as json_file:
         image_histograms = json.load(json_file)
 
-    # Initialize an empty dictionary to store similarities
     similarities = {}
-
-    # Iterate over each image's histograms
     for image_name, block_histograms in image_histograms.items():
         total_similarity = 0
-
-        # Compare each block's histogram
         for i, hist in enumerate(block_histograms):
             total_similarity += cosineSimilarity(
                 np.array(hist), target_block_histograms[i])
-
-        # Average the similarity across all blocks
         avg_similarity = total_similarity / len(block_histograms)
-        if avg_similarity >= 0.6:  # Threshold of 60%
+        if avg_similarity >= 0.6:  # 60% similarity threshold
             similarities[image_name] = avg_similarity
 
     end_time = time.time()
     search_duration = end_time - start_time
 
-    # Pagination logic
-    page = int(request.args.get('page', 1))  # Default to first page
-    per_page = 6  # Number of items per page
+    # Pagination
+    page = int(request.args.get('page', 1))
+    per_page = 6
     total_pages = len(similarities) // per_page + \
         (1 if len(similarities) % per_page else 0)
 
-    # Convert the dictionary to a list and apply pagination
     sorted_similarities = sorted(
         similarities.items(), key=lambda x: x[1], reverse=True)
     paginated_results = sorted_similarities[(page-1)*per_page: page*per_page]
 
-    return jsonify({
+    # Constructing response with images and their similarity scores
+    response_data = {
         "search_duration": search_duration,
         "total_images": len(similarities),
         "current_page": page,
         "total_pages": total_pages,
-        "images": paginated_results
-    }), 200
+        "images": [
+            {
+                "image_name": image_name,
+                # similarity percentage
+                "similarity": round(similarity * 100, 2)
+            }
+            for image_name, similarity in paginated_results
+        ]
+    }
+
+    return jsonify(response_data), 200
 
 
 if __name__ == '__main__':

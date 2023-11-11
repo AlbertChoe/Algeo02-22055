@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import ImagePagination from './ImagePagination';
 
 function Search2() {
     const [imageURL, setImageURL] = useState(localStorage.getItem('imageURL') || null);
     const [zipFile, setZipFile] = useState(null);
     const [isTextureMode, setIsTextureMode] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1); // Track the current page
     const [imageFile, setImageFile] = useState(null);
+
     
     useEffect(() => {
         setImageURL(null);
@@ -53,7 +56,7 @@ function Search2() {
     };
 
     const handleSearch = () => {
-        if (!imageURL) {
+        if (!imageFile) {
             alert("Please upload an image first.");
             return;
         }
@@ -69,39 +72,41 @@ function Search2() {
         .then(data => {
             console.log(data);
             setSearchResults(data.images); // Assuming 'data.images' is the format of the response
+            setCurrentPage(1); // Reset to first page on new search
         })
         .catch(error => console.error(error));
     };
+
 
     // Update handleFileChange to also set imageFile
     
 
     return (
-        <div className="container mx-auto py-20 text-center">
+        <div className="container mx-auto py-28 text-center">
             <div className="mb-6 text-5xl">Similar Image</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-5 mx-4">
-                <div className="mx-auto">
-                    <div className="mb-2">Uploaded Image:</div>
-                    <div className="flex justify-center items-center w-full">
+                <div >
+                    <div className="mb-2 ">Uploaded Image:</div>
+                    <div className="flex justify-center items-center w-3/4 mx-auto">
                             {imageURL ? (
                                 <img 
                                     src={imageURL} 
                                     alt="Uploaded" 
-                                    className="object-contain h-96 w-full md:w-11/12 rounded-lg" 
+                                    className="object-contain h-96 w-3/5 md:w-10/12 rounded-lg" 
                                     onError={handleImageError} 
                                 />
                             ) : (
-                                <div className="flex flex-col items-center justify-center h-96 w-full md:w-11/12 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300">
+                                <div className="flex  flex-col items-center justify-center h-96 w-full  bg-gray-100 rounded-lg border-2 border-dashed border-gray-300  ">
                                     
-
-                                    <p className="text-gray-500">No image uploaded</p>
-                                    <p className="text-gray-400 mt-2">Click below to upload</p>
+                                    
+                                    <p className="text-gray-500 ">No image uploaded</p>
+                                    <p className="text-gray-400 mt-2 ">Click below to upload</p>
                                 </div>
                             )}
                         </div>
 
 
-                    <div className="relative w-4/5 mx-auto mt-4">
+                    <div className="relative w-3/5 mx-auto mt-4">
                         <input
                             className="cursor-pointer absolute block w-full opacity-0"
                             type="file"
@@ -170,7 +175,13 @@ function Search2() {
             ))}
             </div>
             </div>
-            {/* <ImagePagination searchCriteria={isTextureMode ? 'texture' : 'color'} /> */}
+            {/* ImagePagination component */}
+            <ImagePagination 
+                searchResults={searchResults} 
+                currentPage={currentPage} 
+                setCurrentPage={setCurrentPage} 
+                searchCriteria={isTextureMode ? 'texture' : 'color'} 
+            />
         </div>
     );
 }
