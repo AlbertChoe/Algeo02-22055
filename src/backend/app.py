@@ -17,7 +17,7 @@ app = Flask(__name__, static_folder='static/image')
 
 CORS(app)
 
-image_dir = 'image'
+image_dir = 'static/image'
 os.makedirs(image_dir, exist_ok=True)
 
 # Function to process images and create JSON
