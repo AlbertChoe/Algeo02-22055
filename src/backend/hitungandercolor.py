@@ -134,8 +134,8 @@ def imageBlockToHistogram(image_path):
     return hist
 
 mode = input()
-path1 = "image/6.jpg"
-path2 = "image/9.jpg"
+path1 = "image/1.jpg"
+path2 = "image/2.jpg"
 if(mode == "global"):
     start = time.time()
     myhisto1 = imageToHistogram(path1)
@@ -150,7 +150,7 @@ else:
     start = time.time()
     myhisto1 = np.array(imageBlockToHistogram(path1)).astype("int64")
     myhisto2 = np.array(imageBlockToHistogram(path2)).astype("int64")
-    cosinus = sum(cosineSimilarity(myhisto1[i], myhisto2[i]) for i in range(9)) / 9
+    cosinus = sum(cosineSimilarity(myhisto1[i], myhisto2[i]) for i in range(16)) / 16
     print("cosinus = " + str(cosinus))
     end = time.time()
     print("Time : " + str(end - start))

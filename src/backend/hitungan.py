@@ -126,19 +126,19 @@ def imageBlockToHistogram(image_path):
     img_np = np.array(img)
 
     histograms = []
-    for i in range(3):
-        for j in range(3):
-            x_start, x_end = i * img.height // 3, (i + 1) * img.height // 3
-            y_start, y_end = j * img.width // 3, (j + 1) * img.width // 3
-            histograms.append(process_block(
-                img_np, x_start, x_end, y_start, y_end))
+    for i in range(4):
+        for j in range(4):
+            block = img_np[(i)*img.width//4:(i+1)*img.width//4, j*img.height//4:(j+1)*img.height//4, :]
+            hsv_arr = rgb_to_hsv(block).astype("int64")
+            histogram = makeHistogram(hsv_arr)
+            histograms.append(histogram)
 
     return histograms
 
 
 def cosineSimilarity(histo1, histo2):
-    histo1 = histo1.astype(np.int64)
-    histo2 = histo2.astype(np.int64)
+    histo1 = np.array(histo1).astype(np.int64)
+    histo2 = np.array(histo2).astype(np.int64)
     dot_product = np.dot(histo1, histo2)
     lenghtHisto1 = math.sqrt(np.dot(histo1, histo1))
     lengthHisto2 = math.sqrt(np.dot(histo2, histo2))
@@ -156,12 +156,10 @@ def cosineSimilarity(histo1, histo2):
 #     return result
 
 
-# start = time.time()
-# myhisto1 = imageToHistogram("image1.jpeg")
-# myhisto2 = imageToHistogram("image2.jpeg")
-# print(myhisto1)
-# print(myhisto2)
-# cosinus = cosineSimilarity(myhisto1, myhisto2)
-# print("cosinus = " + str(cosinus))
-# end = time.time()
-# print("Time : " + str(end - start))
+start = time.time()
+myhisto1 = imageBlockToHistogram("static/image/1.jpg")
+myhisto2 = imageBlockToHistogram("static/image/2.jpg")
+cosinus = sum(cosineSimilarity(myhisto1[i], myhisto2[i]) for i in range(16)) / 16
+print("cosinus = " + str(cosinus))
+end = time.time()
+print("Time : " + str(end - start))
