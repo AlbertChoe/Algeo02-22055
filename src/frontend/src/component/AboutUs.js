@@ -62,7 +62,7 @@ function Aboutus() {
                         <div className='w-full h-[270px] bg-cover bg-center rounded-3xl'
                             style={{backgroundImage: `url(${benImage[currentProfile]})`}}
                         ></div>
-                        <h1 className='text-center mt-[6px] drop-shadow-[0_2px_4px_rgba(255,255,255,0.7)] text-xl font-semibold'>Derwin Rustlantly</h1>
+                        <h1 className='text-center mt-[6px] drop-shadow-[0_2px_4px_rgba(255,255,255,0.7)] text-xl font-semibold'>Derwin Rustanly</h1>
                         <div className='flex justify-center mt-2'>
                             <a href="https://www.instagram.com/derwinrustanly/" target="_blank" rel="noopener noreferrer">
                                 <FaInstagram className="mx-4 text-white" style={{ fontSize: '30px' }}/>
