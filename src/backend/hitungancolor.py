@@ -126,10 +126,10 @@ def imageBlockToHistogram(image_path):
     img_np = np.array(img)
 
     histograms = []
-    for i in range(3):
-        for j in range(3):
-            x_start, x_end = i * img.height // 3, (i + 1) * img.height // 3
-            y_start, y_end = j * img.width // 3, (j + 1) * img.width // 3
+    for i in range(4):
+        for j in range(4):
+            x_start, x_end = i * img.height // 4, (i + 1) * img.height // 4
+            y_start, y_end = j * img.width // 4, (j + 1) * img.width // 4
             histograms.append(process_block(
                 img_np, x_start, x_end, y_start, y_end))
 
