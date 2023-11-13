@@ -7,7 +7,8 @@ import json
 from PIL import Image
 import numpy as np
 # Assuming your image processing functions (rgb_to_hsv, hsv_to_hsvFeature, makeHistogram, imageToHistogram) are defined
-from hitungan import imageBlockToHistogram, cosineSimilarity
+from hitungancolor import imageBlockToHistogram, cosineSimilarity
+from hitungantexture import convertImageToGrayScale, createOccurenceMatrix, getTextureFeatures, cosineSimilarityTexture
 import time
 from multiprocessing import Pool
 
@@ -20,68 +21,44 @@ CORS(app)
 image_dir = 'static/image'
 os.makedirs(image_dir, exist_ok=True)
 
-# Function to process images and create JSON
 
+def process_single_image(image_path):
+    if image_path.lower().endswith(('.png', '.jpg', '.jpeg')):
+        # Process color histograms
+        block_histograms = imageBlockToHistogram(image_path)
 
-# def process_single_image(image_path):
-#     if image_path.lower().endswith(('.png', '.jpg', '.jpeg')):
-#         histogram = imageToHistogram(image_path)
-#         return (image_path, histogram.tolist())
-#     return None
+        # Process texture features
+        gray_scale_image = convertImageToGrayScale(image_path)
+        occurrence_matrix = createOccurenceMatrix(gray_scale_image)
+        texture_features = getTextureFeatures(occurrence_matrix)
 
-
-# def process_images_to_json(image_folder):
-#     image_paths = [os.path.join(image_folder, img)
-#                    for img in os.listdir(image_folder)]
-
-#     with Pool() as pool:
-#         results = pool.map(process_single_image, image_paths)
-
-#     # Filter out None results and convert to dictionary
-#     image_data = {os.path.basename(
-#         path): hist for path, hist in results if path is not None}
-
-#     with open('image_histograms.json', 'w') as json_file:
-#         json.dump(image_data, json_file)
-# def process_batch_of_images(image_paths):
-#     batch_histograms = {}
-#     for image_path in image_paths:
-#         if image_path.lower().endswith(('.png', '.jpg', '.jpeg')):
-#             histogram = imageToHistogram(image_path)
-#             batch_histograms[os.path.basename(image_path)] = histogram.tolist()
-#     return batch_histograms
-
-def process_batch_of_images(image_paths):
-    batch_histograms = {}
-    for image_path in image_paths:
-        if image_path.lower().endswith(('.png', '.jpg', '.jpeg')):
-            block_histograms = imageBlockToHistogram(image_path)
-            batch_histograms[os.path.basename(image_path)] = [
-                hist.tolist() for hist in block_histograms]
-    return batch_histograms
-
-# Adjust process_images_to_json to use the modified process_batch_of_images
+        return {
+            'path': os.path.basename(image_path),
+            'color': [hist.tolist() for hist in block_histograms],
+            'texture': texture_features.tolist()
+        }
+    return None
 
 
 def process_images_to_json(image_folder, batch_size=50):
     image_paths = [os.path.join(image_folder, img)
                    for img in os.listdir(image_folder)]
-
-    # Create batches of image paths
     batches = [image_paths[i:i + batch_size]
                for i in range(0, len(image_paths), batch_size)]
 
-    # Use multiprocessing to process each batch
+    all_features = {}
     with Pool() as pool:
-        results = pool.map(process_batch_of_images, batches)
+        for batch in batches:
+            results = pool.map(process_single_image, batch)
+            for result in results:
+                if result:
+                    all_features[result['path']] = {
+                        'color': result['color'],
+                        'texture': result['texture']
+                    }
 
-    # Combine results from all batches
-    all_histograms = {}
-    for batch_result in results:
-        all_histograms.update(batch_result)
-
-    with open('image_histograms.json', 'w') as json_file:
-        json.dump(all_histograms, json_file)
+    with open('image_features.json', 'w') as file:
+        json.dump(all_features, file)
 
 
 def clear_image_directory(directory):
@@ -153,19 +130,32 @@ def search_image():
 
     start_time = time.time()
 
-    target_block_histograms = imageBlockToHistogram(target_file)
+    search_type = request.args.get('type', 'color')
 
-    with open('image_histograms.json', 'r') as json_file:
-        image_histograms = json.load(json_file)
+    with open('image_features.json', 'r') as json_file:
+        image_features = json.load(json_file)
+
+    if search_type == 'color':
+        target_features = [np.array(hist)
+                           for hist in imageBlockToHistogram(target_file)]
+    else:  # Assume texture search
+        gray_scale_image = convertImageToGrayScale(target_file)
+        occurrence_matrix = createOccurenceMatrix(gray_scale_image)
+        target_features = np.array(getTextureFeatures(occurrence_matrix))
 
     similarities = {}
-    for image_name, block_histograms in image_histograms.items():
-        total_similarity = 0
-        for i, hist in enumerate(block_histograms):
-            total_similarity += cosineSimilarity(
-                np.array(hist), target_block_histograms[i])
-        avg_similarity = total_similarity / len(block_histograms)
-        if avg_similarity >= 0.6:  # 60% similarity threshold
+    for image_name, features in image_features.items():
+        if search_type == 'color':
+            # Assuming color histograms are stored in a list of arrays
+            total_similarity = sum(cosineSimilarity(np.array(hist), target_hist)
+                                   for hist, target_hist in zip(features['color'], target_features))
+            avg_similarity = total_similarity / len(target_features)
+        else:
+            # For texture, we have a single feature array
+            avg_similarity = cosineSimilarityTexture(
+                features['texture'], target_features)
+
+        if avg_similarity >= 0.6:  # Adjust the threshold as needed
             similarities[image_name] = avg_similarity
 
     end_time = time.time()
@@ -192,7 +182,7 @@ def search_image():
                 "image_name": image_name,
                 # Construct the URL using the new route
                 "image_url": url_for('send_image', filename=image_name),
-                "similarity": round(similarity * 100, 2)
+                "similarity": round(similarity * 100, 5)
             }
             for image_name, similarity in paginated_results
         ]
@@ -203,36 +193,3 @@ def search_image():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-# @app.route('/search', methods=['POST'])
-# def search_image():
-#     if 'file' not in request.files:
-#         return jsonify({"error": "No file part"}), 400
-
-#     target_file = request.files['file']
-#     if target_file.filename == '':
-#         return jsonify({"error": "No selected file"}), 400
-
-#     # Process the target image to get its histogram
-#     target_histogram = imageToHistogram(target_file)
-
-#     # Read the histogram JSON file
-#     with open('image_histograms.json', 'r') as json_file:
-#         image_histograms = json.load(json_file)
-
-#     # Compare histograms and calculate similarity
-#     similarities = {}
-#     for image_name, histogram in image_histograms.items():
-#         similarity = cosineSimilarity(np.array(histogram), target_histogram)
-#         similarities[image_name] = similarity
-
-#     # Sort by similarity score (higher is more similar)
-#     sorted_similarities = sorted(
-#         similarities.items(), key=lambda x: x[1], reverse=True)
-
-#     # Creating a structured response with image names and their similarity scores
-#     similarity_list = [{"image_name": name, "similarity_score": score}
-#                        for name, score in sorted_similarities]
-
-#     return jsonify(similarity_list), 200

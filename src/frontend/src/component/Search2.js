@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ImagePagination from './ImagePagination';
-
+import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 function Search2() {
     const [imageURL, setImageURL] = useState(localStorage.getItem('imageURL') || null);
     const [zipFile, setZipFile] = useState(null);
@@ -19,12 +18,15 @@ function Search2() {
         localStorage.removeItem('imageURL'); // Remove from localStorage if you're using it
     }, []);
 
-
+   
     const fetchImages = (page) => {
+        const searchType = isTextureMode ? 'texture' : 'color';
+        if (!imageFile) return;
+
         const formData = new FormData();
         formData.append('file', imageFile);
 
-        fetch(`http://localhost:5000/search?page=${page}`, {
+        fetch(`http://localhost:5000/search?page=${page}&type=${searchType}`, {
             method: 'POST',
             body: formData,
         })
@@ -42,17 +44,31 @@ function Search2() {
             setTotalPages(0);
         });
     };
-
+    
+    const handleSearch = () => {
+        if (!imageFile) {
+            alert("Please upload an image first.");
+            return;
+        }
+        setCurrentPage(1);
+        fetchImages(1); 
+    };
+    
+    
     useEffect(() => {
-        fetchImages(currentPage);
+        if (imageFile) {
+            fetchImages(currentPage);
+        }
     }, [currentPage]);
+    
+    
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         if (file) {
             const url = URL.createObjectURL(file);
             setImageURL(url);
-            setImageFile(file); // Set the file for upload
+            setImageFile(file); 
         }
     };
 
@@ -81,26 +97,35 @@ function Search2() {
     const handleToggleChange = () => {
         setIsTextureMode(!isTextureMode);
     };
+    
 
     const handleImageError = () => {
         setImageURL(null);
     };
 
 
-    const handleSearch = () => {
-        if (!imageFile) {
-            alert("Please upload an image first.");
-            return;
-        }
-        setCurrentPage(1);
-        fetchImages(1); // Fetch images for the first page
-    };
-
-
-    // Update handleFileChange to also set imageFile
     
 
+    // Update handleFileChange to also set imageFile
+    const maxPageNumbers = 5;
+
+    const handlePrev = () => {
+        setCurrentPage(Math.max(1, currentPage - 1));
+    };
+
+    const handleNext = () => {
+        setCurrentPage(Math.min(totalPages, currentPage + 1));
+    };
+
+    const getPageNumbers = () => {
+        const startPage = Math.max(currentPage - 2, 1);
+        const endPage = Math.min(startPage + maxPageNumbers - 1, totalPages);
+
+        return [...Array((endPage + 1) - startPage).keys()].map(n => startPage + n);
+    };
+
     return (
+        <div>
         <div className="container mx-auto py-28 text-center">
             <div className="mb-6 text-5xl">Similar Image</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-5 mx-4">
@@ -184,40 +209,9 @@ function Search2() {
                 </div>
 
 
-                {/* Display search results in here i want to show total image result and the time taken to search it  */}
-                {/* {Array.isArray(searchResults) && (
-                searchResults.length > 0 ? (
-                    <>
-                        <div className="my-6 p-4 bg-blue-100 rounded-lg shadow">
-                            <h3 className="text-xl font-semibold text-blue-800">Search Results:</h3>
-                            <p className="text-blue-600">Total Images: <span className="font-bold">{totalImages}</span></p>
-                            <p className="text-blue-600">Search Duration: <span className="font-bold">{searchDuration.toFixed(2)} seconds</span></p>
-                        </div>
-                        <ImagePagination 
-                            searchResults={searchResults} 
-                            currentPage={currentPage} 
-                            setCurrentPage={setCurrentPage} 
-                            totalPages={totalPages}
-                        />
-                    </>
-                ) : (
-                    <div className="my-6 p-4 bg-red-100 rounded-lg shadow">
-                        <h3 className="text-xl font-semibold text-red-800">No Results Found</h3>
-                        <p className="text-red-600">There are no similar images found in the dataset.</p>
-                    </div>
-                )
-            )} */}
+               
             </div>
-            {/* ImagePagination component */}
-             {/* Render ImagePagination only when searchResults is an array */}
-             {/* {Array.isArray(searchResults) && searchResults.length > 0 && (
-                <ImagePagination 
-                    searchResults={searchResults} 
-                    currentPage={currentPage} 
-                    setCurrentPage={setCurrentPage} 
-                    totalPages={totalPages}
-                />
-            )} */}
+            
             {Array.isArray(searchResults) && (
                 searchResults.length > 0 ? (
                     <>
@@ -226,12 +220,41 @@ function Search2() {
                             <p className="text-blue-600">Total Images: <span className="font-bold">{totalImages}</span></p>
                             <p className="text-blue-600">Search Duration: <span className="font-bold">{searchDuration.toFixed(2)} seconds</span></p>
                         </div>
-                        <ImagePagination 
-                            searchResults={searchResults} 
-                            currentPage={currentPage} 
-                            setCurrentPage={setCurrentPage} 
-                            totalPages={totalPages}
-                        />
+                        <div className="container mx-auto p-4">
+            {/* Images grid */}
+            <div className="grid grid-cols-3 gap-4 mb-4 mx-28 truncate">
+                {searchResults.map((result, index) => (
+                    <div key={index} className="w-4/5 h-3/5">
+                        <img src={`http://localhost:5000${result.image_url}`} alt={`Similar to uploaded`} className=" object-cover rounded-lg" />
+                        <div className="text-center mt-2">
+                            <p>Similarity: {result.similarity}%</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Pagination control */}
+            <div className="flex items-center justify-center gap-4">
+                <button onClick={handlePrev} disabled={currentPage === 1} className="flex items-center gap-2">
+                    <ArrowLeftIcon className="h-4 w-4" /> Previous
+                </button>
+
+                {getPageNumbers().map(page => (
+                    <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        disabled={currentPage === page}
+                        className={`px-3 py-1 rounded ${currentPage === page ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                    >
+                        {page}
+                    </button>
+                ))}
+
+                <button onClick={handleNext} disabled={currentPage === totalPages} className="flex items-center gap-2">
+                    Next <ArrowRightIcon className="h-4 w-4" />
+                </button>
+            </div>
+            </div>
                     </>
                 ) : (
                     <div className="my-6 p-4 bg-red-100 rounded-lg shadow">
@@ -240,7 +263,9 @@ function Search2() {
                     </div>
                 )
             )}
-        </div>
+            </div>
+
+            </div>
     );
 }
 

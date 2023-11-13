@@ -136,14 +136,19 @@ def imageBlockToHistogram(image_path):
     return histograms
 
 
-def cosineSimilarity(histo1, histo2):
-    histo1 = histo1.astype(np.int64)
-    histo2 = histo2.astype(np.int64)
-    dot_product = np.dot(histo1, histo2)
-    lenghtHisto1 = math.sqrt(np.dot(histo1, histo1))
-    lengthHisto2 = math.sqrt(np.dot(histo2, histo2))
-    result = dot_product / (lenghtHisto1 * lengthHisto2)
-    return result
+def cosineSimilarity(vector1, vector2):
+    vector1 = np.array(vector1).astype(np.int64).flatten()
+    vector2 = np.array(vector2).astype(np.int64).flatten()
+    dot_product = np.dot(vector1, vector2)
+    length_vector1 = np.linalg.norm(vector1)
+    length_vector2 = np.linalg.norm(vector2)
+
+    # Avoid division by zero
+    if length_vector1 == 0 or length_vector2 == 0:
+        return 0
+
+    return dot_product / (length_vector1 * length_vector2)
+
 
 # def cosineSimilarityBlock(histo1, histo2):
 #     histo1 = histo1.astype(np.int64)
