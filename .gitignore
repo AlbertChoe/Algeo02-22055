@@ -3,6 +3,7 @@ src/backend/__pycache__
 src/backend/image_features.json
 src/backend/image_histograms.json
 src/backend/static/image
+src/backend/image
 src/backend/venv
 src/backend/env
 __pycache__

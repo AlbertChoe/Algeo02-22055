@@ -25,14 +25,14 @@ function Aboutus() {
                 style={{backgroundImage: `url(${"imageaboutus.jpeg"})`}}
             ></div>
             <div 
-                className="absolute w-full h-full bg-black z-10 opacity-70"></div>
+                className="absolute w-full h-full bg-black z-10 opacity-80"></div>
             <div></div>
-            <div className="absolute text-white z-20 w-full top-[110px] flex items-center flex-col">
+            <div className="absolute text-white z-20 w-full top-[100px] flex items-center flex-col">
                 <div 
                     className="text-white w-full pl-[120px] "
                 >
                     <p className='text-gray-500 font-reemkufi'>Our team</p>
-                    <h1 className='text-7xl  font-light drop-shadow-[2px_2px_6px_rgba(255,255,255,0.7)]'><span className='font-extrabold'>ABOUT </span>US</h1> 
+                    <h1 className='text-7xl  font-light '><span className='font-extrabold'>ABOUT </span>US</h1> 
                     <button className='bg-[#ff1100] rounded-lg px-[12px] py-[8px] mt-[30px] text-sm text-gray-200 hover:bg-opacity-80 font-reemkufi'>VISIT OUR REPOSITORY</button>
                 </div>
                 <div 
@@ -62,7 +62,7 @@ function Aboutus() {
                         <div className='w-full h-[270px] bg-cover bg-center rounded-3xl'
                             style={{backgroundImage: `url(${benImage[currentProfile]})`}}
                         ></div>
-                        <h1 className='text-center mt-[6px] drop-shadow-[0_2px_4px_rgba(255,255,255,0.7)] text-xl font-semibold'>Derwin Rustlantly</h1>
+                        <h1 className='text-center mt-[6px] drop-shadow-[0_2px_4px_rgba(255,255,255,0.7)] text-xl font-semibold'>Derwin Rustanly</h1>
                         <div className='flex justify-center mt-2'>
                             <a href="https://www.instagram.com/derwinrustanly/" target="_blank" rel="noopener noreferrer">
                                 <FaInstagram className="mx-4 text-white" style={{ fontSize: '30px' }}/>
