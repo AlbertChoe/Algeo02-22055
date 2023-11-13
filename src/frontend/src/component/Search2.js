@@ -10,6 +10,13 @@ function Search2() {
     const [imageFile, setImageFile] = useState(null);
     const [totalImages, setTotalImages] = useState(0);
     const [searchDuration, setSearchDuration] = useState(0);
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadSuccess, setUploadSuccess] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
+    const [imageUploadSuccess, setImageUploadSuccess] = useState(false);
+
+
+
     
     
     useEffect(() => {
@@ -37,11 +44,13 @@ function Search2() {
             setCurrentPage(data.current_page || 1);
             setTotalImages(data.total_images || 0);
             setSearchDuration(data.search_duration || 0);
+            setIsSearching(false);
         })
         .catch(error => {
             console.error(error);
             setSearchResults([]);
             setTotalPages(0);
+            setIsSearching(false);
         });
     };
     
@@ -50,6 +59,7 @@ function Search2() {
             alert("Please upload an image first.");
             return;
         }
+        setIsSearching(true);
         setCurrentPage(1);
         fetchImages(1); 
     };
@@ -83,6 +93,8 @@ function Search2() {
             const url = URL.createObjectURL(file);
             setImageURL(url);
             setImageFile(file);
+            setImageUploadSuccess(true); // Set success state
+            setTimeout(() => setImageUploadSuccess(false), 2000); // Reset after 2 seconds
             
         } else {
             alert("Please upload a valid image file.");
@@ -108,22 +120,52 @@ function Search2() {
         setZipFile(event.target.files[0]);
     };
 
+    // const handleUploadZip = () => {
+    //     if (!zipFile) {
+    //         alert("Please select a ZIP file first.");
+    //         return;
+    //     }
+
+    //     const formData = new FormData();
+    //     formData.append('file', zipFile);
+
+    //     fetch('http://localhost:5000/upload', {
+    //         method: 'POST',
+    //         body: formData,
+    //     })
+    //     .then(response => response.text())
+    //     .then(data => console.log(data))
+    //     .catch(error => console.error(error));
+    // };
+
     const handleUploadZip = () => {
         if (!zipFile) {
             alert("Please select a ZIP file first.");
             return;
         }
-
+    
+        setIsUploading(true); // Start loading
+    
         const formData = new FormData();
         formData.append('file', zipFile);
-
+    
         fetch('http://localhost:5000/upload', {
             method: 'POST',
             body: formData,
         })
         .then(response => response.text())
-        .then(data => console.log(data))
-        .catch(error => console.error(error));
+        .then(data => {
+            console.log(data);
+            setUploadSuccess(true); // Show success message
+            setTimeout(() => {
+                setIsUploading(false); // Hide loading and success message after a delay
+                setUploadSuccess(false);
+            }, 2000); // 2 seconds delay
+        })
+        .catch(error => {
+            console.error(error);
+            setIsUploading(false); // Stop loading on error
+        });
     };
 
     const handleToggleChange = () => {
@@ -185,6 +227,15 @@ function Search2() {
         return [...Array((endPage + 1) - startPage).keys()].map(n => startPage + n);
     };
 
+    const CheckmarkIcon = () => (
+        <div class="svg-container">    
+            <svg class="ft-green-tick" xmlns="http://www.w3.org/2000/svg" height="50" width="50" viewBox="0 0 48 48" aria-hidden="true">
+                <circle class="circle" fill="#5bb543" cx="24" cy="24" r="22"/>
+                <path class="tick" fill="none" stroke="#FFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M14 27l5.917 4.917L34 17"/>
+            </svg>
+        </div>
+    );
+
     return (
         <div  className='w-full h-screen relative'>
             <div 
@@ -227,9 +278,10 @@ function Search2() {
                                 accept="image/*"
                                 onChange={handleFileChange}
                             />
+                            
                         </div>
                     </div>
-
+                    
 
                     <div className="container">
                         <h2 className="text-2xl font-bold mb-4">Upload Dataset</h2>
@@ -242,7 +294,7 @@ function Search2() {
                                 accept=".zip" 
                             />
                             <button 
-                                className="px-4 py-3 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                className="px-4 py-3 bg-[#00ff3b] text-black font-semibold rounded-lg hover:bg-green-500"
                                 onClick={handleUploadZip}
                             >
                                 Upload ZIP
@@ -321,7 +373,9 @@ function Search2() {
                                 Next <ArrowRightIcon className="h-4 w-4" />
                             </button>
                         </div>
+
                         </div>
+                        <div><button onClick={handleDownloadPdf} className='text-2xl font-bold border-[#00ff3b]  text-black rounded-lg mt-[30px] py-[15px] px-[20px] bg-[#00ff3b] hover:bg-green-500 drop-shadow-[0_2px_4px_rgba(255,255,255,0.7)]'>Download pdf</button></div>
                                 </>
                     ) : (
                         <div className="my-6 p-4 bg-red-100 rounded-lg shadow">
@@ -331,9 +385,43 @@ function Search2() {
                     )
                 )}
 
-                <div><button onClick={handleDownloadPdf} className='text-2xl font-bold border-[#00ff3b]  text-black rounded-lg mt-[30px] py-[15px] px-[20px] bg-[#00ff3b] hover:bg-green-500 drop-shadow-[0_2px_4px_rgba(255,255,255,0.7)]'>Download pdf</button></div>
+                
                 </div>
 
+                {imageUploadSuccess && (
+                    <div className="absolute right-10 bottom-10 text-white px-3 py-2 bg-green-500 z-50 rounded-lg flex items-center justify-center text-lg font-bold animate-bounce">
+                        <CheckmarkIcon/>
+                        Upload Success
+                    </div>
+                )}
+                
+                {isUploading && (
+                    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
+                        <div className="p-5 bg-white rounded-lg flex items-center justify-center text-xl font-bold">
+                        {uploadSuccess ? (
+                            <>
+                                <CheckmarkIcon/>
+                                <span className="ml-3">Upload successful!</span>
+                            </>
+                        ) : (
+                            <>
+                                <div className="spinner"></div>
+                                <span className="ml-3">Uploading dataset... Please wait.</span>
+                            </>
+                        )}
+                        </div>
+                    </div>
+                )}
+                {isSearching && (
+                    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
+                        <div className="p-5 bg-white rounded-lg flex items-center justify-center text-xl font-bold">
+                            <div className="spinner"></div>
+                            <span className="ml-3">Searching... Please wait.</span>
+                        </div>
+                    </div>
+                )}
+
+                
         </div>
     );
 }
