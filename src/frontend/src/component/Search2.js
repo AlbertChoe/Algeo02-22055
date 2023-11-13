@@ -16,9 +16,6 @@ function Search2() {
     const [imageUploadSuccess, setImageUploadSuccess] = useState(false);
 
 
-
-    
-    
     useEffect(() => {
         setImageURL(null);
         setImageFile(null);
@@ -26,46 +23,52 @@ function Search2() {
     }, []);
 
    
-    const fetchImages = (page) => {
-        const searchType = isTextureMode ? 'texture' : 'color';
-        if (!imageFile) return;
-
-        const formData = new FormData();
-        formData.append('file', imageFile);
-
-        fetch(`http://localhost:5000/search?page=${page}&type=${searchType}`, {
-            method: 'POST',
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
-            setSearchResults(data.images || []);
-            setTotalPages(Math.max(0, data.total_pages)); // Ensure non-negative
-            setCurrentPage(data.current_page || 1);
-            setTotalImages(data.total_images || 0);
-            setSearchDuration(data.search_duration || 0);
-            setIsSearching(false);
-        })
-        .catch(error => {
-            console.error(error);
-            setSearchResults([]);
-            setTotalPages(0);
-            setIsSearching(false);
-        });
+    const fetchImages = (page, isNewSearch = false) => {
+        setIsSearching(true);
+    
+        let url, options;
+    
+        if (isNewSearch) {
+            // Initial search with image file
+            url = `http://localhost:5000/search?page=${page}&type=${isTextureMode ? 'texture' : 'color'}`;
+            const formData = new FormData();
+            formData.append('file', imageFile);
+            options = { method: 'POST', body: formData };
+        } else {
+            // Pagination request without image file
+            url = `http://localhost:5000/change_page?page=${page}`;
+            options = { method: 'GET' };
+        }
+    
+        fetch(url, options)
+            .then(response => response.json())
+            .then(data => {
+                setSearchResults(data.images || []);
+                setTotalPages(Math.max(0, data.total_pages));
+                setCurrentPage(data.current_page || 1);
+                setTotalImages(data.total_images || 0);
+                setSearchDuration(data.search_duration || 0);
+            })
+            .catch(error => {
+                console.error(error);
+                setSearchResults([]);
+                setTotalPages(0);
+            })
+            .finally(() => setIsSearching(false));
     };
+    
     
     const handleSearch = () => {
         if (!imageFile) {
             alert("Please upload an image first.");
             return;
         }
-        setIsSearching(true);
         setCurrentPage(1);
-        fetchImages(1); 
+        fetchImages(1, true); // true for new search
     };
     
-    
     useEffect(() => {
+        // Only fetch images if an image is uploaded
         if (imageFile) {
             fetchImages(currentPage);
         }
@@ -107,36 +110,9 @@ function Search2() {
         event.stopPropagation();
     };
 
-    // const handleFileChange = (event) => {
-    //     const file = event.target.files[0];
-    //     if (file) {
-    //         const url = URL.createObjectURL(file);
-    //         setImageURL(url);
-    //         setImageFile(file); 
-    //     }
-    // };
-
     const handleZipFileChange = (event) => {
         setZipFile(event.target.files[0]);
     };
-
-    // const handleUploadZip = () => {
-    //     if (!zipFile) {
-    //         alert("Please select a ZIP file first.");
-    //         return;
-    //     }
-
-    //     const formData = new FormData();
-    //     formData.append('file', zipFile);
-
-    //     fetch('http://localhost:5000/upload', {
-    //         method: 'POST',
-    //         body: formData,
-    //     })
-    //     .then(response => response.text())
-    //     .then(data => console.log(data))
-    //     .catch(error => console.error(error));
-    // };
 
     const handleUploadZip = () => {
         if (!zipFile) {
@@ -213,12 +189,14 @@ function Search2() {
     const maxPageNumbers = 5;
 
     const handlePrev = () => {
-        setCurrentPage(Math.max(1, currentPage - 1));
+        setCurrentPage(prevPage => Math.max(1, prevPage - 1));
     };
-
+    
     const handleNext = () => {
-        setCurrentPage(Math.min(totalPages, currentPage + 1));
+        setCurrentPage(prevPage => Math.min(totalPages, prevPage + 1));
     };
+    
+    
 
     const getPageNumbers = () => {
         const startPage = Math.max(currentPage - 2, 1);
