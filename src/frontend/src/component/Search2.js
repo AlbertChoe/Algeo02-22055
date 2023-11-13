@@ -14,7 +14,9 @@ function Search2() {
     const [uploadSuccess, setUploadSuccess] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
     const [imageUploadSuccess, setImageUploadSuccess] = useState(false);
-
+    const [showModal, setShowModal] = useState(false);
+    const [linkInput, setLinkInput] = useState('');
+    
 
     useEffect(() => {
         setImageURL(null);
@@ -57,7 +59,6 @@ function Search2() {
             .finally(() => setIsSearching(false));
     };
     
-    
     const handleSearch = () => {
         if (!imageFile) {
             alert("Please upload an image first.");
@@ -67,8 +68,8 @@ function Search2() {
         fetchImages(1, true); // true for new search
     };
     
+    
     useEffect(() => {
-        // Only fetch images if an image is uploaded
         if (imageFile) {
             fetchImages(currentPage);
         }
@@ -189,14 +190,12 @@ function Search2() {
     const maxPageNumbers = 5;
 
     const handlePrev = () => {
-        setCurrentPage(prevPage => Math.max(1, prevPage - 1));
+        setCurrentPage(Math.max(1, currentPage - 1));
     };
-    
+
     const handleNext = () => {
-        setCurrentPage(prevPage => Math.min(totalPages, prevPage + 1));
+        setCurrentPage(Math.min(totalPages, currentPage + 1));
     };
-    
-    
 
     const getPageNumbers = () => {
         const startPage = Math.max(currentPage - 2, 1);
@@ -214,6 +213,55 @@ function Search2() {
         </div>
     );
 
+    const handleSubmitLink = () => {
+        if (!linkInput) {
+            alert("Please enter a link first.");
+            return;
+        }
+    
+        setIsUploading(true); // Start loading
+    
+        fetch('http://localhost:5000/upload_link', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ link: linkInput })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                alert(data.error); // Show error message from backend
+            } else {
+                console.log(data);
+                setUploadSuccess(true); // Show success message
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            alert("Error uploading link."); // Show error on network failure or if response not ok
+        })
+        .finally(() => {
+            setIsUploading(false); // Stop loading
+            setShowModal(false); // Close the modal
+            setLinkInput(''); // Clear the input field
+        });
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setLinkInput(''); // Clear the link input when modal is closed
+    };
+
+    const handleShowModal = () => {
+        setLinkInput('');
+        setShowModal(true);
+    }
     return (
         <div  className='w-full h-screen relative'>
             <div 
@@ -222,7 +270,7 @@ function Search2() {
             ></div>
             <div 
                 className="fixed w-full h-full bg-black z-10 opacity-80"></div>
-            <div className="absolute container mx-auto py-28 text-center text-white z-30">
+            <div className="absolute container mx-auto py-28 text-center text-white z-30 top-5">
                 <div className="mb-6 text-5xl text-white font-bold  tracking-widest font-reemkufi">Snap Twins</div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-5 mx-4">
                 <div>
@@ -244,8 +292,9 @@ function Search2() {
                             )}
 
                             {!imageURL && (
-                                <div className="flex flex-col items-center justify-center h-80 w-full bg-gray-100 rounded-lg border-2 border-dashed border-gray-300">
-                                    <p className="text-gray-500">Drag and drop image here</p>
+                                <div className="flex flex-col items-center justify-center h-80 w-full bg-transparent rounded-lg border-2  border-gray-300 text-xl">
+                                    <img src="iconupload.png" className='slow-bounce w-[40%] h-[170px]'></img>
+                                    <p className="text-white">Drag and drop image here</p>
                                     <p className="text-gray-400 mt-2">or click here to upload</p>
                                 </div>
                             )}
@@ -279,9 +328,14 @@ function Search2() {
                             </button>
                         </div>
 
+                        <div className='text-white text-xl font-reemkufi font-bold mt-10'>
+                            Insert dataset via link :   
+                            <button className='ml-3 bg-[#ff0000] px-5 py-3 rounded-[100px] font-reemkufi font-bold border border-[#ff0000] hover:bg-red-500' onClick={handleShowModal}>Image Scrapping</button>
+                        </div>
+
                         <div>
                             <input
-                                className="mr-2 mt-20 h-5 w-12 appearance-none rounded-lg bg-neutral-300 before:pointer-events-none before:absolute before:h-5 before:w-5 before:rounded-full before:bg-transparent before:content-[''] after:absolute after:z-[2] after:-mt-[0.1875rem] after:h-6 after:w-6 after:rounded-full after:border-none after:bg-neutral-100 after:shadow-lg after:transition-all after:content-[''] checked:bg-blue-500 checked:after:absolute checked:after:z-[2] checked:after:-mt-[3px] checked:after:ml-[1.625rem] checked:after:h-6 checked:after:w-6 checked:after:rounded-full checked:after:border-none checked:after:bg-blue-500 checked:after:shadow-lg checked:after:transition-all hover:cursor-pointer focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-lg focus:before:transition-all focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-6 focus:after:w-6 focus:after:rounded-full focus:after:content-[''] checked:focus:border-blue-500 checked:focus:bg-blue-500 checked:focus:before:ml-[1.625rem] checked:focus:before:scale-100 checked:focus:before:shadow-lg checked:focus:before:transition-all dark:bg-neutral-600 dark:after:bg-neutral-400 dark:checked:bg-blue-500 dark:checked:after:bg-blue-500 dark:focus:before:shadow-lg dark:checked:focus:before:shadow-lg"
+                                className="mr-2 mt-16 h-5 w-12 appearance-none rounded-lg bg-neutral-300 before:pointer-events-none before:absolute before:h-5 before:w-5 before:rounded-full before:bg-transparent before:content-[''] after:absolute after:z-[2] after:-mt-[0.1875rem] after:h-6 after:w-6 after:rounded-full after:border-none after:bg-neutral-100 after:shadow-lg after:transition-all after:content-[''] checked:bg-blue-500 checked:after:absolute checked:after:z-[2] checked:after:-mt-[3px] checked:after:ml-[1.625rem] checked:after:h-6 checked:after:w-6 checked:after:rounded-full checked:after:border-none checked:after:bg-blue-500 checked:after:shadow-lg checked:after:transition-all hover:cursor-pointer focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-lg focus:before:transition-all focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-6 focus:after:w-6 focus:after:rounded-full focus:after:content-[''] checked:focus:border-blue-500 checked:focus:bg-blue-500 checked:focus:before:ml-[1.625rem] checked:focus:before:scale-100 checked:focus:before:shadow-lg checked:focus:before:transition-all dark:bg-neutral-600 dark:after:bg-neutral-400 dark:checked:bg-blue-500 dark:checked:after:bg-blue-500 dark:focus:before:shadow-lg dark:checked:focus:before:shadow-lg"
                                 type="checkbox"
                                 role="switch"
                                 id="flexSwitchCheckDefault"
@@ -296,13 +350,15 @@ function Search2() {
                             </label>
                         </div>
 
+                        
+
                         {/* Search Button */}
                         <button 
-                    onClick={handleSearch}
-                    className="mt-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-2 px-4 rounded shadow-lg hover:shadow-xl transition duration-300"
-                >
-                    Search Image Similarity
-                </button>
+                            onClick={handleSearch}
+                            className="mt-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-2 px-4 rounded shadow-lg hover:shadow-xl transition duration-300"
+                        >
+                            Search Image Similarity
+                        </button>
                     </div>
 
 
@@ -321,10 +377,12 @@ function Search2() {
                         {/* Images grid */}
                         <div className="grid grid-cols-3 gap-4 mb-4 mx-28 truncate">
                             {searchResults.map((result, index) => (
-                                <div key={index} className="w-4/5 h-3/5">
-                                    <img src={`http://localhost:5000${result.image_url}`} alt={`Similar to uploaded`} className=" object-cover rounded-lg" />
-                                    <div className="text-center mt-2">
-                                        <p>Similarity: {result.similarity}%</p>
+                                <div key={index} className="w-full h-full flex justify-center items-center">
+                                    <div className="w-1/2 h-1/2 flex flex-col items-center justify-center">
+                                        <img src={`http://localhost:5000${result.image_url}`} alt={`Similar to uploaded`} className="object-cover rounded-lg" />
+                                        <div className="text-center mt-2">
+                                            <p>Similarity: {result.similarity}%</p>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -367,7 +425,7 @@ function Search2() {
                 </div>
 
                 {imageUploadSuccess && (
-                    <div className="absolute right-10 bottom-10 text-white px-3 py-2 bg-green-500 z-50 rounded-lg flex items-center justify-center text-lg font-bold animate-bounce">
+                    <div className="absolute right-10 bottom-10 text-white px-5 py-2 bg-green-500 z-50 rounded-[100px] flex items-center justify-center text-xl font-extrabold slow-bounce">
                         <CheckmarkIcon/>
                         Upload Success
                     </div>
@@ -399,6 +457,32 @@ function Search2() {
                     </div>
                 )}
 
+                {showModal && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30 text-white font-reemkufi">
+                        <div className="bg-gray-800 shadow-xl border border-gray-400 p-4 rounded-lg relative">
+                            <button
+                                className="absolute top-2 right-3 text-white text-lg font-bold"
+                                onClick={handleCloseModal}
+                            >
+                                X {/* This is your close button */}
+                            </button>
+                            <h2 className="text-lg mb-4">Enter Dataset Link</h2>
+                            <input
+                                type="text"
+                                value={linkInput}
+                                onChange={(e) => setLinkInput(e.target.value)}
+                                className="border border-gray-300 rounded p-2 mb-4 w-full text-black"
+                                placeholder="Enter link here"
+                            />
+                            <button
+                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                onClick={handleSubmitLink}
+                            >
+                                Upload Link
+                            </button>
+                        </div>
+                    </div>
+                )}
                 
         </div>
     );

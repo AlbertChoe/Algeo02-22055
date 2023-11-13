@@ -68,3 +68,16 @@
   height: 50px;
   animation: spin 1s linear infinite;
 }
+
+@keyframes slowBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.slow-bounce {
+  animation: slowBounce 2s infinite;
+}

@@ -15,6 +15,10 @@ from hitungantexture import convertImageToGrayScale, createOccurenceMatrix, getT
 import time
 from multiprocessing import Pool
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+import re
 
 
 app = Flask(__name__, static_folder='static/image')
@@ -72,6 +76,61 @@ def clear_image_directory(directory):
         if os.path.isfile(item_path):
             os.remove(item_path)
 
+def is_valid_url(url):
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
+
+def download_images_from_url(url, target_folder):
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    images = soup.find_all('img')
+    for img in images:
+        src = img.get('src')
+        if src and (src.endswith('.jpg') or src.endswith('.jpeg') or src.endswith('.png')):
+            # Handle relative URLs
+            if not src.startswith('http'):
+                src = url + src
+            download_image(src, target_folder)
+
+def download_image(image_url, target_folder):
+    response = requests.get(image_url)
+    if response.status_code == 200:
+        filename = os.path.join(target_folder, image_url.split('/')[-1])
+        with open(filename, 'wb') as f:
+            f.write(response.content)
+
+@app.route('/upload_link', methods=['POST'])
+def upload_from_link():
+    start_time = time.time()
+    data = request.get_json()
+    link = data.get('link')
+
+    if not link or not is_valid_url(link):
+        return jsonify({"error": "No link provided"}), 400
+
+    image_dir = 'static/image'
+    clear_image_directory(image_dir)
+
+    try:
+        download_images_from_url(link, image_dir)
+        if not os.listdir(image_dir):  # Check if directory is still empty
+            return jsonify({"error": "No images found at the provided link"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+    extraction_time = time.time()
+
+    process_images_to_json(image_dir)
+    processing_time = time.time()
+    total_time = processing_time - start_time
+    print(f"Total Time: {total_time:.2f} seconds")
+    print(f"Extraction Time: {extraction_time - start_time:.2f} seconds")
+    print(f"Processing Time: {processing_time - extraction_time:.2f} seconds")
+
+    return jsonify({"message": "Images from link processed successfully"}), 200
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
