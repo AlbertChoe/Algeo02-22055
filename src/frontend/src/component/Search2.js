@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,useRef } from 'react';
 import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 function Search2() {
     const [imageURL, setImageURL] = useState(localStorage.getItem('imageURL') || null);
@@ -16,6 +16,8 @@ function Search2() {
     const [imageUploadSuccess, setImageUploadSuccess] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [linkInput, setLinkInput] = useState('');
+    const [useCamera, setUseCamera] = useState(false);
+    const videoRef = useRef(null);
     
 
     useEffect(() => {
@@ -230,24 +232,35 @@ function Search2() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                // If response is not OK, handle it as an error
+                return response.json().then(data => {
+                    throw new Error(data.error || 'Network response was not ok');
+                });
             }
             return response.json();
         })
         .then(data => {
             if (data.error) {
-                alert(data.error); // Show error message from backend
+                // Handle any errors sent by the server
+ 
+                throw new Error(data.error);
+                
             } else {
                 console.log(data);
-                setUploadSuccess(true); // Show success message
+                setUploadSuccess(true); // Show success message only on successful operation
+                setTimeout(() => {
+                    setIsUploading(false);
+                    setUploadSuccess(false);
+                }, 2000); // 2 seconds delay to reset the success state
             }
         })
         .catch(error => {
             console.error(error);
-            alert("Error uploading link."); // Show error on network failure or if response not ok
+            setIsUploading(false);
+            alert(error.message); // Display the error message
         })
         .finally(() => {
-            setIsUploading(false); // Stop loading
+
             setShowModal(false); // Close the modal
             setLinkInput(''); // Clear the input field
         });
@@ -262,6 +275,31 @@ function Search2() {
         setLinkInput('');
         setShowModal(true);
     }
+
+    useEffect(() => {
+        if (useCamera) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    videoRef.current.srcObject = stream;
+                    videoRef.current.play();
+                })
+                .catch(err => {
+                    console.error('Error accessing camera:', err);
+                });
+        } else {
+            // Stop and clear the video stream if camera is not used
+            if (videoRef.current && videoRef.current.srcObject) {
+                videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+                videoRef.current.srcObject = null;
+            }
+        }
+    }, [useCamera]);
+
+    const handleToggleCamera = () => {
+        setUseCamera(!useCamera);
+        setImageURL(null); // Clear the existing image URL if toggling to camera
+    };
+
     return (
         <div  className='w-full h-screen relative'>
             <div 
@@ -274,39 +312,62 @@ function Search2() {
                 <div className="mb-6 text-5xl text-white font-bold  tracking-widest font-reemkufi">Snap Twins</div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-5 mx-4">
                 <div>
-                        <div className='mb-4 font-bold font-reemkufi'>Upload Image Here : </div>
-                        <div 
-                            className="flex justify-center items-center w-3/4 mx-auto relative"
-                            onDrop={handleDrop}
-                            onDragOver={handleDragOver}
-                            onDragEnter={handleDragOver}
-                            onDragLeave={handleDragOver}
-                        >
-                            {imageURL && (
-                                <img 
-                                    src={imageURL} 
-                                    alt="Uploaded" 
-                                    className="object-contain h-80 w-3/5 md:w-10/12 rounded-lg" 
-                                    onError={handleImageError} 
-                                />
-                            )}
-
-                            {!imageURL && (
-                                <div className="flex flex-col items-center justify-center h-80 w-full bg-transparent rounded-lg border-2  border-gray-300 text-xl">
-                                    <img src="iconupload.png" className='slow-bounce w-[40%] h-[170px]'></img>
-                                    <p className="text-white">Drag and drop image here</p>
-                                    <p className="text-gray-400 mt-2">or click here to upload</p>
-                                </div>
-                            )}
-
-                            <input
-                                className="cursor-pointer absolute inset-0 block w-full opacity-0"
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                            />
-                            
+                        {/* <div className='mb-4 font-bold font-reemkufi'>Upload Image Here : </div> */}
+                        <div className="flex items-center justify-center mb-5">
+                            <button 
+                                className={`w-1/2 text-center py-2 font-bold rounded-l-lg ${!useCamera ? 'bg-[#00ff3b] text-black' : 'bg-gray-300 text-gray-700'}`}
+                                onClick={handleToggleCamera}
+                            >
+                                Upload Image
+                            </button>
+                            <button 
+                                className={`w-1/2 text-center py-2 font-bold rounded-r-lg ${useCamera ? 'bg-[#00ff3b] text-black' : 'bg-gray-300 text-gray-700'}`}
+                                onClick={handleToggleCamera}
+                            >
+                                Use Camera
+                            </button>
                         </div>
+
+
+                        {useCamera ? (
+                            <div className="camera-container flex items-center justify-center">
+                                <video ref={videoRef} width="400" height="300"></video>
+                            </div>
+                        ) : (
+
+                            <div 
+                                className="flex justify-center items-center w-3/4 mx-auto relative"
+                                onDrop={handleDrop}
+                                onDragOver={handleDragOver}
+                                onDragEnter={handleDragOver}
+                                onDragLeave={handleDragOver}
+                            >
+                                {imageURL && (
+                                    <img 
+                                        src={imageURL} 
+                                        alt="Uploaded" 
+                                        className="object-contain h-80 w-3/5 md:w-10/12 rounded-lg" 
+                                        onError={handleImageError} 
+                                    />
+                                )}
+
+                                {!imageURL && (
+                                    <div className="flex flex-col items-center justify-center h-80 w-full bg-transparent rounded-lg border-2  border-gray-300 text-xl">
+                                        <img src="iconupload.png" className='slow-bounce w-[40%] h-[170px]'></img>
+                                        <p className="text-white">Drag and drop image here</p>
+                                        <p className="text-gray-400 mt-2">or click here to upload</p>
+                                    </div>
+                                )}
+
+                                <input
+                                    className="cursor-pointer absolute inset-0 block w-full opacity-0"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                />
+                                
+                            </div>
+                        )}
                     </div>
                     
 
