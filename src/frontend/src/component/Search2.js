@@ -27,16 +27,27 @@ function Search2() {
     }, []);
 
    
-    const fetchImages = (page, isNewSearch = false) => {
+    const  fetchImages = (page, isNewSearch = false,imageFileParam = null) => {
         setIsSearching(true);
     
         let url, options;
     
         if (isNewSearch) {
             // Initial search with image file
+            // console.log("halo");
+            // url = `http://localhost:5000/search?page=${page}&type=${isTextureMode ? 'texture' : 'color'}`;
+            // const formData = new FormData();
+            // formData.append('file', imageFile);
+            // options = { method: 'POST', body: formData };
+            const imageToUse = imageFileParam || imageFile;
+            if (!imageToUse) {
+                console.error("No image file available for search.");
+                setIsSearching(false);
+                return;
+            }
             url = `http://localhost:5000/search?page=${page}&type=${isTextureMode ? 'texture' : 'color'}`;
             const formData = new FormData();
-            formData.append('file', imageFile);
+            formData.append('file', imageToUse);
             options = { method: 'POST', body: formData };
         } else {
             // Pagination request without image file
@@ -228,41 +239,37 @@ function Search2() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ link: linkInput })
+            body: JSON.stringify({ url: linkInput })
         })
         .then(response => {
-            if (!response.ok) {
-                // If response is not OK, handle it as an error
-                return response.json().then(data => {
-                    throw new Error(data.error || 'Network response was not ok');
+            if (response.ok) {
+                return response.json();
+            } else {
+                // Extract the error message text if possible
+                return response.text().then(text => {
+                    throw new Error(text || 'Network response was not ok.');
                 });
             }
-            return response.json();
         })
         .then(data => {
             if (data.error) {
                 // Handle any errors sent by the server
- 
                 throw new Error(data.error);
-                
             } else {
                 console.log(data);
                 setUploadSuccess(true); // Show success message only on successful operation
-                setTimeout(() => {
-                    setIsUploading(false);
-                    setUploadSuccess(false);
-                }, 2000); // 2 seconds delay to reset the success state
+                // Additional logic for success can be placed here
             }
         })
         .catch(error => {
             console.error(error);
-            setIsUploading(false);
             alert(error.message); // Display the error message
         })
         .finally(() => {
-
+            setIsUploading(false);
             setShowModal(false); // Close the modal
             setLinkInput(''); // Clear the input field
+            setTimeout(() => setUploadSuccess(false), 2000); // 2 seconds delay to reset the success state
         });
     };
 
@@ -277,27 +284,93 @@ function Search2() {
     }
 
     useEffect(() => {
+        let intervalId;
         if (useCamera) {
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(stream => {
                     videoRef.current.srcObject = stream;
                     videoRef.current.play();
+    
+                    // Set up an interval to take a picture every 10 seconds
+                    intervalId = setInterval(() => {
+                        captureImageFromVideo(videoRef.current);
+                    }, 10000);
                 })
                 .catch(err => {
                     console.error('Error accessing camera:', err);
                 });
         } else {
-            // Stop and clear the video stream if camera is not used
+            // Clear the interval and stop the video stream when not using the camera
+            clearInterval(intervalId);
             if (videoRef.current && videoRef.current.srcObject) {
-                videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+                const stream = videoRef.current.srcObject;
+                const tracks = stream.getTracks();
+
+                tracks.forEach(function (track) {
+                    track.stop();
+                });
+
                 videoRef.current.srcObject = null;
             }
         }
+    
+        // Cleanup on unmount
+        return () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+            if (videoRef.current && videoRef.current.srcObject) {
+                const stream = videoRef.current.srcObject;
+                const tracks = stream.getTracks();
+    
+                tracks.forEach(function (track) {
+                    track.stop();
+                });
+    
+                videoRef.current.srcObject = null;
+            }
+        };
     }, [useCamera]);
 
     const handleToggleCamera = () => {
-        setUseCamera(!useCamera);
-        setImageURL(null); // Clear the existing image URL if toggling to camera
+        const shouldUseCamera = !useCamera;
+        setUseCamera(shouldUseCamera);
+
+        if (!shouldUseCamera) {
+            // If we're toggling off the camera, stop the video stream
+            if (videoRef.current && videoRef.current.srcObject) {
+                const stream = videoRef.current.srcObject;
+                const tracks = stream.getTracks();
+
+                tracks.forEach(function (track) {
+                    track.stop();
+                });
+
+                videoRef.current.srcObject = null;
+            }
+            setImageURL(null); // Clear the existing image URL
+        }
+    };
+
+    const captureImageFromVideo = (videoElement) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
+        canvas.getContext('2d').drawImage(videoElement, 0, 0);
+        canvas.toBlob(blob => {
+            // Convert the blob to a File object
+            const image = new File([blob], "capture.jpg", { type: "image/jpeg" });
+            // Set the image URL and file in the state
+            console.log(image)
+            const url = URL.createObjectURL(blob);
+            setImageURL(url);
+            setImageFile(image);
+            setImageUploadSuccess(true);
+            setTimeout(() => setImageUploadSuccess(false), 2000);
+            // Call fetchImages to process the image
+            setCurrentPage(1);
+            fetchImages(1, true,image); // Assume page 1 and new search
+        }, 'image/jpeg');
     };
 
     return (
@@ -315,13 +388,13 @@ function Search2() {
                         {/* <div className='mb-4 font-bold font-reemkufi'>Upload Image Here : </div> */}
                         <div className="flex items-center justify-center mb-5">
                             <button 
-                                className={`w-1/2 text-center py-2 font-bold rounded-l-lg ${!useCamera ? 'bg-[#00ff3b] text-black' : 'bg-gray-300 text-gray-700'}`}
+                                className={`w-1/3 text-center py-2 font-bold rounded-l-lg ${!useCamera ? 'bg-[#00ff3b] text-black' : 'bg-gray-300 text-gray-700'}`}
                                 onClick={handleToggleCamera}
                             >
                                 Upload Image
                             </button>
                             <button 
-                                className={`w-1/2 text-center py-2 font-bold rounded-r-lg ${useCamera ? 'bg-[#00ff3b] text-black' : 'bg-gray-300 text-gray-700'}`}
+                                className={`w-1/3 text-center py-2 font-bold rounded-r-lg ${useCamera ? 'bg-[#00ff3b] text-black' : 'bg-gray-300 text-gray-700'}`}
                                 onClick={handleToggleCamera}
                             >
                                 Use Camera
@@ -331,7 +404,7 @@ function Search2() {
 
                         {useCamera ? (
                             <div className="camera-container flex items-center justify-center">
-                                <video ref={videoRef} width="400" height="300"></video>
+                                <video ref={videoRef} width="400" height="300" className='rounded-xl'></video>
                             </div>
                         ) : (
 
@@ -544,6 +617,8 @@ function Search2() {
                         </div>
                     </div>
                 )}
+
+               
                 
         </div>
     );
