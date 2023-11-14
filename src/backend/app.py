@@ -19,6 +19,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from urllib.parse import urlparse, urljoin, unquote
+import urllib.request
 
 
 app = Flask(__name__, static_folder='static/image')
@@ -75,172 +76,6 @@ def clear_image_directory(directory):
         item_path = os.path.join(directory, item)
         if os.path.isfile(item_path):
             os.remove(item_path)
-
-# def is_valid_url(url):
-#     try:
-#         result = urlparse(url)
-#         return all([result.scheme, result.netloc])
-#     except ValueError:
-#         return False
-
-# # def download_images_from_url(url, target_folder):
-# #     response = requests.get(url)
-# #     soup = BeautifulSoup(response.text, 'html.parser')
-# #     images = soup.find_all('img')
-# #     for img in images:
-# #         src = img.get('src')
-# #         if src and (src.endswith('.jpg') or src.endswith('.jpeg') or src.endswith('.png')):
-# #             # Handle relative URLs
-# #             if not src.startswith('http'):
-# #                 src = url + src
-# #             download_image(src, target_folder)
-
-# # def download_image(image_url, target_folder):
-# #     response = requests.get(image_url)
-# #     if response.status_code == 200:
-# #         filename = os.path.join(target_folder, image_url.split('/')[-1])
-# #         with open(filename, 'wb') as f:
-# #             f.write(response.content)
-
-# # def download_image(image_url, target_folder):
-# #     response = requests.get(image_url)
-# #     if response.status_code == 200 and 'image' in response.headers.get('Content-Type', ''):
-# #         filename = os.path.join(target_folder, secure_filename(image_url.split('/')[-1]))
-# #         with open(filename, 'wb') as f:
-# #             f.write(response.content)
-# #     else:
-# #         print(f"Failed to download or not an image: {image_url}")
-
-# # def download_images_from_url(url, target_folder):
-# #     response = requests.get(url)
-# #     if response.status_code == 200:
-# #         soup = BeautifulSoup(response.text, 'html.parser')
-# #         images = soup.find_all('img')
-        
-# #         # Regex to match URLs ending with .jpg, .jpeg, or .png before any query or fragment
-# #         img_regex = re.compile(r'\.(jpg|jpeg|png)(?![\w\d])', re.IGNORECASE)
-
-# #         for img in images:
-# #             src = img.get('src')
-# #             if src and img_regex.search(src):
-# #                 src = urljoin(url, src)
-# #                 download_image(src, target_folder)
-
-# def clean_image_url(url):
-#     """
-#     Clean, decode the image URL, and remove any query parameters or extra strings after the image extension.
-#     """
-#     # Decode URL-encoded characters
-#     url = unquote(url)
-    
-#     # Regular expression to capture the URL up to the image extension
-#     match = re.search(r'(.*\.(jpg|jpeg|png))', url, re.IGNORECASE)
-    
-#     if match:
-#         # Return only the part of the URL up to the image extension
-#         return match.group(1)
-#     else:
-#         # If no image extension is found, return the original URL
-#         return url
-# def download_image(image_url, target_folder, counter):
-#     image_url = clean_image_url(image_url)
-
-#     if image_url.endswith(('.png', '.jpg', '.jpeg')):
-#         response = requests.get(image_url)
-#         if response.status_code == 200:
-#             filename = os.path.join(target_folder, f'image{counter}.png') # All images saved as PNG
-#             with open(filename, 'wb') as f:
-#                 f.write(response.content)
-#         else:
-#             print(f"Failed to download: {image_url}")
-#     else:
-#         print(f"Not an image or unsupported format: {image_url}")
-
-# def download_images_from_url(url, target_folder):
-#     response = requests.get(url)
-#     if response.status_code == 200:
-#         soup = BeautifulSoup(response.text, 'html.parser')
-#         images = soup.find_all('img')
-
-#         counter = 1
-#         for img in images:
-#             src = img.get('src')
-#             if src:
-#                 src = urljoin(url, src)
-#                 download_image(src, target_folder, counter)
-#                 counter += 1
-
-@app.route('/upload_link', methods=['POST'])
-def scrape_images():
-    # Get URL from the frontend
-    data = request.json
-    url = data['url']
-
-    # Fetch the webpage
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-
-    # Find all image tags on the webpage
-    images = soup.find_all('img')
-
-    if images:
-        saved_images = []
-        allowed_extensions = ['.jpg', '.png', '.jpeg']
-
-        for index, image in enumerate(images):
-            # Construct the full URL for the image
-            image_url = urljoin(url, image['src'])
-
-            # Parse the URL to isolate the extension
-            parsed_url = urlparse(image_url)
-            path = parsed_url.path
-            ext = os.path.splitext(path)[1].lower()
-
-            # Check if the extension is one of the allowed types
-            clear_image_directory(image_dir)
-            if ext in allowed_extensions:
-                # Download the image
-                image_response = requests.get(image_url)
-
-                # Save the image with a unique name
-                image_name = f'downloaded_image_{index}{ext}'
-                image_path = os.path.join(image_dir, image_name)
-
-                with open(image_path, 'wb') as file:
-                    file.write(image_response.content)
-                saved_images.append(image_name)
-
-        return {'message': 'Images saved', 'saved_images': saved_images}
-    else:
-        return {'error': 'No images found'}, 404
-# def upload_from_link():
-#     start_time = time.time()
-#     data = request.get_json()
-#     link = data.get('link')
-
-#     if not link or not is_valid_url(link):
-#         return jsonify({"error": "No link provided"}), 400
-
-#     image_dir = 'static/image'
-#     clear_image_directory(image_dir)
-
-#     try:
-#         download_images_from_url(link, image_dir)
-#         if not os.listdir(image_dir):  # Check if directory is still empty
-#             return jsonify({"error": "No images found at the provided link"}), 400
-#     except Exception as e:
-#         return jsonify({"error": "Error processing the link: " + str(e)}), 500
-    
-#     extraction_time = time.time()
-
-#     process_images_to_json(image_dir)
-#     processing_time = time.time()
-#     total_time = processing_time - start_time
-#     print(f"Total Time: {total_time:.2f} seconds")
-#     print(f"Extraction Time: {extraction_time - start_time:.2f} seconds")
-#     print(f"Processing Time: {processing_time - extraction_time:.2f} seconds")
-
-#     return jsonify({"message": "Images from link processed successfully"}), 200
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -461,6 +296,41 @@ def download_pdf():
     response.headers['Content-Disposition'] = 'attachment; filename=sorted_similarities.pdf'
     return response
 
+
+@app.route('/scrape_images', methods=['POST'])
+def scrape_images():
+    data = request.get_json()
+    url = data.get('url')
+    if not url:
+        return jsonify({'error': 'No URL provided'}), 400
+
+    try:
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        images = soup.find_all('img', src=re.compile(r'\.(jpg|jpeg|png)$'))
+        saved_images_count = 0
+        clear_image_directory(image_dir)
+        for img in images:
+            src = img.get('src')
+            # Handle relative URLs
+            if not src.startswith('http'):
+                src = urljoin(url, src)
+
+            image_name = os.path.basename(src)
+            image_path = os.path.join(image_dir, image_name)
+            try:
+                urllib.request.urlretrieve(src, image_path)
+                saved_images_count += 1
+            except Exception as e:
+                print(f"Error saving image {src}: {e}")
+        
+        # After saving images, process them
+        process_images_to_json(image_dir)
+
+        return jsonify({'message': f'Successfully scraped and processed {saved_images_count} images'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

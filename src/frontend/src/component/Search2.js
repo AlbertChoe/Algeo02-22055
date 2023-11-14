@@ -226,53 +226,6 @@ function Search2() {
         </div>
     );
 
-    const handleSubmitLink = () => {
-        if (!linkInput) {
-            alert("Please enter a link first.");
-            return;
-        }
-    
-        setIsUploading(true); // Start loading
-    
-        fetch('http://localhost:5000/upload_link', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ url: linkInput })
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                // Extract the error message text if possible
-                return response.text().then(text => {
-                    throw new Error(text || 'Network response was not ok.');
-                });
-            }
-        })
-        .then(data => {
-            if (data.error) {
-                // Handle any errors sent by the server
-                throw new Error(data.error);
-            } else {
-                console.log(data);
-                setUploadSuccess(true); // Show success message only on successful operation
-                // Additional logic for success can be placed here
-            }
-        })
-        .catch(error => {
-            console.error(error);
-            alert(error.message); // Display the error message
-        })
-        .finally(() => {
-            setIsUploading(false);
-            setShowModal(false); // Close the modal
-            setLinkInput(''); // Clear the input field
-            setTimeout(() => setUploadSuccess(false), 2000); // 2 seconds delay to reset the success state
-        });
-    };
-
     const handleCloseModal = () => {
         setShowModal(false);
         setLinkInput(''); // Clear the link input when modal is closed
@@ -371,6 +324,40 @@ function Search2() {
             setCurrentPage(1);
             fetchImages(1, true,image); // Assume page 1 and new search
         }, 'image/jpeg');
+    };
+
+    const handleSubmitLink = () => {
+        if (!linkInput) {
+            alert("Please enter a URL.");
+            return;
+        }
+        setIsUploading(true);
+        // Your backend endpoint for handling the URL submission
+        const url = 'http://localhost:5000/scrape_images';
+
+        // Send the URL to your backend
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ url: linkInput }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Link submission response:", data);
+            setUploadSuccess(true); // Show success message
+            setTimeout(() => {
+                setIsUploading(false); // Hide loading and success message after a delay
+                setUploadSuccess(false);
+            }, 2000); // 2 seconds delay
+
+            setShowModal(false); // Hide the modal after submission
+            setLinkInput(''); // Clear the input field
+        })
+        .catch(error => {
+            console.error("Error submitting link:", error);
+        });
     };
 
     return (
