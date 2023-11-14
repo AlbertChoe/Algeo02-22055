@@ -2,7 +2,7 @@ import React, { useState, useEffect ,useRef } from 'react';
 import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 function Search2() {
     const [imageURL, setImageURL] = useState(localStorage.getItem('imageURL') || null);
-    const [zipFile, setZipFile] = useState(null);
+    const [folderFile, setFolderFile] = useState(null);
     const [isTextureMode, setIsTextureMode] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -124,20 +124,20 @@ function Search2() {
         event.stopPropagation();
     };
 
-    const handleZipFileChange = (event) => {
-        setZipFile(event.target.files[0]);
+    const handleFolderFileChange = (event) => {
+        setFolderFile(event.target.files[0]);
     };
 
-    const handleUploadZip = () => {
-        if (!zipFile) {
-            alert("Please select a ZIP file first.");
+    const handleUploadFolder = () => {
+        if (!folderFile) {
+            alert("Please select a folder file first.");
             return;
         }
     
         setIsUploading(true); // Start loading
     
         const formData = new FormData();
-        formData.append('file', zipFile);
+        formData.append('file', folderFile);
     
         fetch('http://localhost:5000/upload', {
             method: 'POST',
@@ -438,14 +438,19 @@ function Search2() {
                             <input 
                                 className="w-3/5 text-md p-2 border border-gray-300 rounded mb-2 mr-5" 
                                 type="file" 
-                                onChange={handleZipFileChange} 
-                                accept=".zip" 
+                                onChange={handleFolderFileChange} 
+                                directory=""
+                                webkitdirectory=""
+                                mozdirectory=""
+                                msdirectory=""
+                                odirectory=""
+                                multiple
                             />
                             <button 
                                 className="px-4 py-3 bg-[#00ff3b] text-black font-semibold rounded-lg hover:bg-green-500"
-                                onClick={handleUploadZip}
+                                onClick={handleUploadFolder}
                             >
-                                Upload ZIP
+                                Upload Folder
                             </button>
                         </div>
 

@@ -78,48 +78,32 @@ def clear_image_directory(directory):
             os.remove(item_path)
 
 @app.route('/upload', methods=['POST'])
-def upload_file():
-
+def upload_folder():
     start_time = time.time()
 
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
+    if 'folder' not in request.files:
+        return jsonify({"error": "No folder part"}), 400
 
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+    folder = request.files['folder']
 
     # Clear existing data in the image directory
     clear_image_directory(image_dir)
 
-    # Save the ZIP file temporarily
-    temp_zip_path = os.path.join(image_dir, 'temp.zip')
-    file.save(temp_zip_path)
-
-    # Extract only the allowed file types
-    allowed_extensions = {'jpg', 'jpeg', 'png'}
-    try:
-        with zipfile.ZipFile(temp_zip_path, 'r') as zip_ref:
-            for file_info in zip_ref.infolist():
-                if file_info.filename.split('.')[-1].lower() in allowed_extensions:
-                    # Extract files directly to the image directory, ignoring any folder structure in the ZIP file
-                    file_info.filename = os.path.basename(file_info.filename)
-                    zip_ref.extract(file_info, image_dir)
-    except zipfile.BadZipFile:
-        return jsonify({"error": "Invalid ZIP file"}), 400
-    finally:
-        os.remove(temp_zip_path)
+    # Save the images from the folder
+    for filename in folder:
+        file_path = os.path.join(image_dir, secure_filename(filename.filename))
+        filename.save(file_path)
 
     extraction_time = time.time()
 
-    # Process the extracted images and create a JSON file
+    # Process the uploaded images and create a JSON file
     process_images_to_json(image_dir)
     processing_time = time.time()
     total_time = processing_time - start_time
     print(f"Total Time: {total_time:.2f} seconds")
     print(f"Extraction Time: {extraction_time - start_time:.2f} seconds")
     print(f"Processing Time: {processing_time - extraction_time:.2f} seconds")
-    return jsonify({"message": "File uploaded, extracted, and processed successfully"}), 200
+    return jsonify({"message": "Images from folder uploaded and processed successfully"}), 200
 
 
 @app.route('/images/<filename>')
