@@ -18,8 +18,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 from bs4 import BeautifulSoup
 import re
-from urllib.parse import urlparse, urljoin, unquote
+from urllib.parse import urlparse, urljoin, parse_qs
 import urllib.request
+import mimetypes
 
 
 app = Flask(__name__, static_folder='static/image')
@@ -377,22 +378,38 @@ def scrape_images():
     try:
         response = requests.get(url)
         soup = BeautifulSoup(response.text, 'html.parser')
-        images = soup.find_all('img', src=re.compile(r'\.(jpg|jpeg|png)$'))
+        images = soup.find_all('img')
         saved_images_count = 0
         clear_image_directory(image_dir)
         for img in images:
             src = img.get('src')
+
+            if not src:
+                continue
             # Handle relative URLs
             if not src.startswith('http'):
                 src = urljoin(url, src)
 
-            image_name = os.path.basename(src)
-            image_path = os.path.join(image_dir, image_name)
-            try:
-                urllib.request.urlretrieve(src, image_path)
-                saved_images_count += 1
-            except Exception as e:
-                print(f"Error saving image {src}: {e}")
+            parse_url = urlparse(src)
+            query_url = parse_qs(parse_url.query)
+
+            if 'url' in query_url:
+                image_path = query_url['url'][0]
+                src = urlparse(url).scheme + "://" + urlparse(url).netloc + image_path
+
+            image_res = requests.get(src)
+            if(image_res.status_code != 200):
+                continue
+           
+            type = image_res.headers['Content-Type']
+            extension =  mimetypes.guess_extension(type)
+
+            if extension != None :
+                if extension in ['.jpg', '.jpeg', '.png']:
+                    image_file_name = f'image_{saved_images_count}{extension}'
+                    with open(os.path.join(image_dir, image_file_name), 'wb') as file:
+                        file.write(image_res.content)
+                    saved_images_count += 1
         
         # After saving images, process them
         process_images_to_json(image_dir)
