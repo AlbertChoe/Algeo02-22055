@@ -77,33 +77,119 @@ def clear_image_directory(directory):
         if os.path.isfile(item_path):
             os.remove(item_path)
 
+# @app.route('/upload', methods=['POST'])
+# def upload_folder():
+#     start_time = time.time()
+
+#     if 'folder' not in request.files:
+#         return jsonify({"error": "No folder part"}), 400
+
+#     folder = request.files['folder']
+
+#     # Clear existing data in the image directory
+#     clear_image_directory(image_dir)
+
+#     # Save the images from the folder
+#     for filename in folder:
+#         file_path = os.path.join(image_dir, secure_filename(filename.filename))
+#         filename.save(file_path)
+
+#     extraction_time = time.time()
+
+#     # Process the uploaded images and create a JSON file
+#     process_images_to_json(image_dir)
+#     processing_time = time.time()
+#     total_time = processing_time - start_time
+#     print(f"Total Time: {total_time:.2f} seconds")
+#     print(f"Extraction Time: {extraction_time - start_time:.2f} seconds")
+#     print(f"Processing Time: {processing_time - extraction_time:.2f} seconds")
+#     return jsonify({"message": "Images from folder uploaded and processed successfully"}), 200
+
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# @app.route('/upload', methods=['POST'])
+# def upload_folder():
+#     start_time = time.time()
+
+#     # Check if the post request has the file part
+#     if 'file' not in request.files:
+#         return jsonify({"error": "No file part in the request"}), 400
+
+#     # Get the list of files from the request
+#     files = request.files.getlist('file')
+
+#     if not files or all(file.filename == '' for file in files):
+#         return jsonify({"error": "No files found"}), 400
+
+#     # Clear existing data in the image directory
+#     clear_image_directory(image_dir)
+
+#     # Save each file in the file list
+#     for file in files:
+#         if file and allowed_file(file.filename):
+#             filename = secure_filename(file.filename)
+#             file_path = os.path.join(image_dir, filename)
+#             file.save(file_path)
+
+#     extraction_time = time.time()
+
+#     # Process the uploaded images and create a JSON file
+#     process_images_to_json(image_dir)
+#     processing_time = time.time()
+#     total_time = processing_time - start_time
+#     print(f"Total Time: {total_time:.2f} seconds")
+#     print(f"Extraction Time: {extraction_time - start_time:.2f} seconds")
+#     print(f"Processing Time: {processing_time - extraction_time:.2f} seconds")
+#     return jsonify({"message": "Files uploaded and processed successfully"}), 200
+
 @app.route('/upload', methods=['POST'])
-def upload_folder():
+def upload_file():
+
     start_time = time.time()
 
-    if 'folder' not in request.files:
-        return jsonify({"error": "No folder part"}), 400
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
 
-    folder = request.files['folder']
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
 
     # Clear existing data in the image directory
     clear_image_directory(image_dir)
 
-    # Save the images from the folder
-    for filename in folder:
-        file_path = os.path.join(image_dir, secure_filename(filename.filename))
-        filename.save(file_path)
+    # Save the ZIP file temporarily
+    temp_zip_path = os.path.join(image_dir, 'temp.zip')
+    file.save(temp_zip_path)
+
+    # Extract only the allowed file types
+    allowed_extensions = {'jpg', 'jpeg', 'png'}
+    try:
+        with zipfile.ZipFile(temp_zip_path, 'r') as zip_ref:
+            for file_info in zip_ref.infolist():
+                if file_info.filename.split('.')[-1].lower() in allowed_extensions:
+                    # Extract files directly to the image directory, ignoring any folder structure in the ZIP file
+                    file_info.filename = os.path.basename(file_info.filename)
+                    zip_ref.extract(file_info, image_dir)
+    except zipfile.BadZipFile:
+        return jsonify({"error": "Invalid ZIP file"}), 400
+    finally:
+        os.remove(temp_zip_path)
 
     extraction_time = time.time()
 
-    # Process the uploaded images and create a JSON file
+    # Process the extracted images and create a JSON file
     process_images_to_json(image_dir)
     processing_time = time.time()
     total_time = processing_time - start_time
     print(f"Total Time: {total_time:.2f} seconds")
     print(f"Extraction Time: {extraction_time - start_time:.2f} seconds")
     print(f"Processing Time: {processing_time - extraction_time:.2f} seconds")
-    return jsonify({"message": "Images from folder uploaded and processed successfully"}), 200
+    return jsonify({"message": "File uploaded, extracted, and processed successfully"}), 200
+
+
 
 
 @app.route('/images/<filename>')
@@ -315,6 +401,35 @@ def scrape_images():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+
+@app.route('/upload_batch', methods=['POST'])
+def upload_batch():
+    start_time = time.time()
+
+    files = request.files.getlist('file')
+    if not files or all(file.filename == '' for file in files):
+        return jsonify({"error": "No files found in the batch"}), 400
+    # Check if this is a new upload process
+    isNewUpload = request.form.get('isNewUpload') == 'true'
+
+    if isNewUpload:
+        clear_image_directory(image_dir)
+
+    for key in request.files:
+        if key != 'isNewUpload':  # Skip the flag
+            file = request.files[key]
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(image_dir, filename))
+
+    # Process files after batch upload
+    process_images_to_json(image_dir)
+    processing_time = time.time()
+    total_time = processing_time - start_time
+    print(f"Total Time: {total_time:.2f} seconds")
+
+    return jsonify({"message": "Batch upload successful"}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)

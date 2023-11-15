@@ -1,5 +1,7 @@
 import React, { useState, useEffect ,useRef } from 'react';
 import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
+import JSZip from 'jszip';
+
 function Search2() {
     const [imageURL, setImageURL] = useState(localStorage.getItem('imageURL') || null);
     const [folderFile, setFolderFile] = useState(null);
@@ -18,6 +20,12 @@ function Search2() {
     const [linkInput, setLinkInput] = useState('');
     const [useCamera, setUseCamera] = useState(false);
     const videoRef = useRef(null);
+    const [zipFile, setZipFile] = useState(null);
+
+
+    // const handleFolderChange = (event) => {
+    //     setFolderFiles([...event.target.files]);
+    // };
     
 
     useEffect(() => {
@@ -128,35 +136,68 @@ function Search2() {
         setFolderFile(event.target.files[0]);
     };
 
-    const handleUploadFolder = () => {
-        if (!folderFile) {
-            alert("Please select a folder file first.");
-            return;
-        }
+    // const handleUploadFolder = () => {
+    //     if (!folderFile) {
+    //         alert("Please select a folder file first.");
+    //         return;
+    //     }
     
-        setIsUploading(true); // Start loading
+    //     setIsUploading(true); // Start loading
     
-        const formData = new FormData();
-        formData.append('file', folderFile);
+    //     const formData = new FormData();
+    //     formData.append('file', folderFile);
     
-        fetch('http://localhost:5000/upload', {
-            method: 'POST',
-            body: formData,
-        })
-        .then(response => response.text())
-        .then(data => {
-            console.log(data);
-            setUploadSuccess(true); // Show success message
-            setTimeout(() => {
-                setIsUploading(false); // Hide loading and success message after a delay
-                setUploadSuccess(false);
-            }, 2000); // 2 seconds delay
-        })
-        .catch(error => {
-            console.error(error);
-            setIsUploading(false); // Stop loading on error
-        });
-    };
+    //     fetch('http://localhost:5000/upload', {
+    //         method: 'POST',
+    //         body: formData,
+    //     })
+    //     .then(response => response.text())
+    //     .then(data => {
+    //         console.log(data);
+    //         setUploadSuccess(true); // Show success message
+    //         setTimeout(() => {
+    //             setIsUploading(false); // Hide loading and success message after a delay
+    //             setUploadSuccess(false);
+    //         }, 2000); // 2 seconds delay
+    //     })
+    //     .catch(error => {
+    //         console.error(error);
+    //         setIsUploading(false); // Stop loading on error
+    //     });
+    // };
+
+    // const handleUploadFolder = () => {
+    //     if (folderFiles.length === 0) {
+    //       alert("Please select a folder first.");
+    //       return;
+    //     }
+      
+    //     setIsUploading(true); // Assuming you have a state to track upload status
+      
+    //     const formData = new FormData();
+    //     for (const file of folderFiles) {
+    //       formData.append('file', file);
+    //     }
+      
+    //     fetch('http://localhost:5000/upload', { // Update the URL to your server endpoint
+    //       method: 'POST',
+    //       body: formData,
+    //     })
+    //     .then(response => response.json()) // Assuming your server returns a JSON response
+    //     .then(data => {
+    //       console.log(data);
+    //       // Handle successful upload
+    //       setUploadSuccess(true); // Assuming you have a state to track success status
+    //       setTimeout(() => {
+    //         setIsUploading(false);
+    //         setUploadSuccess(false);
+    //       }, 2000);
+    //     })
+    //     .catch(error => {
+    //       console.error(error);
+    //       setIsUploading(false); // Handle upload error
+    //     });
+    //   };
 
     const handleToggleChange = () => {
         setIsTextureMode(!isTextureMode);
@@ -360,6 +401,77 @@ function Search2() {
         });
     };
 
+    // const handleUploadFolder = async () => {
+    //     if (folderFiles.length === 0) {
+    //         alert("Please select a folder first.");
+    //         return;
+    //     }
+    
+    //     setIsUploading(true); // Start loading
+    
+    //     try {
+    //         console.log(1);
+    //         console.log(folderFiles);
+    //         await uploadFiles(folderFiles);
+    //         setUploadSuccess(true); // Show success message
+    //     } catch (error) {
+    //         console.error(error);
+    //         // Handle upload error
+    //     } finally {
+
+    //         setTimeout(() => {
+    //             setUploadSuccess(false);
+    //             setIsUploading(false);
+    //         }, 2000);
+    //     }
+    // };
+
+    const handleFolderChange = async (event) => {
+        const files = event.target.files;
+        if (!files.length) return;
+
+        const zip = new JSZip();
+        Array.from(files).forEach((file) => {
+            zip.file(file.webkitRelativePath || file.name, file);
+        });
+
+        try {
+            const zipBlob = await zip.generateAsync({ type: "blob" });
+            setZipFile(zipBlob); // Save the zipped file in the state
+        } catch (error) {
+            console.error("Error zipping files:", error);
+        }
+    };
+
+    const handleUploadZip = () => {
+        if (!zipFile) {
+            return;
+        }
+    
+        setIsUploading(true); // Start loading
+    
+        const formData = new FormData();
+        formData.append('file', zipFile);
+    
+        fetch('http://localhost:5000/upload', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log(data);
+            setUploadSuccess(true); // Show success message
+            setTimeout(() => {
+                setIsUploading(false); // Hide loading and success message after a delay
+                setUploadSuccess(false);
+            }, 2000); // 2 seconds delay
+        })
+        .catch(error => {
+            console.error(error);
+            setIsUploading(false); // Stop loading on error
+        });
+    };
+
     return (
         <div  className='w-full h-screen relative'>
             <div 
@@ -435,7 +547,7 @@ function Search2() {
                         <h2 className="text-2xl font-bold mb-4">Upload Dataset</h2>
                         
                         <div className="mb-4">
-                            <input 
+                            {/* <input 
                                 className="w-3/5 text-md p-2 border border-gray-300 rounded mb-2 mr-5" 
                                 type="file" 
                                 onChange={handleFolderFileChange} 
@@ -445,10 +557,18 @@ function Search2() {
                                 msdirectory=""
                                 odirectory=""
                                 multiple
-                            />
+                            /> */}
+                            <input
+                                className="w-3/5 text-md p-2 border border-gray-300 rounded mb-2 mr-5"
+                                type="file"
+                                webkitdirectory="true"
+                                directory="true"
+                                multiple
+                                onChange={handleFolderChange}
+/>
                             <button 
                                 className="px-4 py-3 bg-[#00ff3b] text-black font-semibold rounded-lg hover:bg-green-500"
-                                onClick={handleUploadFolder}
+                                onClick={handleUploadZip}
                             >
                                 Upload Folder
                             </button>
@@ -479,12 +599,16 @@ function Search2() {
                         
 
                         {/* Search Button */}
-                        <button 
-                            onClick={handleSearch}
-                            className="mt-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-2 px-4 rounded shadow-lg hover:shadow-xl transition duration-300"
-                        >
-                            Search Image Similarity
-                        </button>
+                        {
+                            !useCamera && ( // Render the button only if useCamera is false
+                                <button 
+                                    onClick={handleSearch}
+                                    className="mt-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-2 px-4 rounded shadow-lg hover:shadow-xl transition duration-300"
+                                >
+                                    Search Image Similarity
+                                </button>
+                            )
+                        }
                     </div>
 
 
