@@ -121,6 +121,11 @@ def process_block(img_np, x_start, x_end, y_start, y_end):
 
 def imageBlockToHistogram(image_path):
     img = Image.open(image_path)
+    if img.width > 1080:
+        w = 1080
+        h = img.height/img.width * 1080
+        img = img.resize((w,h))
+        
     if img.mode != 'RGB':
         img = img.convert('RGB')
     img_np = np.array(img)
