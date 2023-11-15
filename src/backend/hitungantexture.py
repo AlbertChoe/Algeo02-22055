@@ -10,7 +10,7 @@ def convertImageToGrayScale(Path):
     
     if img.width > 1080:
         w = 1080
-        h = img.height/img.width * 1080
+        h = img.height//img.width * 1080
         img = img.resize((w,h))
         
     # Convert image to RGB if it's not already
