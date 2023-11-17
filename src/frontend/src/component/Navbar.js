@@ -32,7 +32,7 @@ const Navbar = () => {
                         <li>
                             <div className="py-3">
                                 <Link to="/Home" class="group text-white transition-all duration-300 ease-in-out" >
-                                <span class="bg-left-bottom bg-gradient-to-r from-green-500 to-green-500 bg-[length:0%_5px] bg-no-repeat  group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg  font-medium text-l ">
+                                <span class="bg-left-bottom bg-gradient-to-r from-green-500 to-green-500 bg-[length:0%_5px] bg-no-repeat group-hover:bg-[length:90%_3px] onset-10 pb-1 transition-all duration-500 ease-out   px-5 rounded-lg  font-medium text-l ">
                                 Home
                                 </span>
                                 </Link>
@@ -89,6 +89,7 @@ const Navbar = () => {
                         </ul>
                 </div>
                 {/* Conditionally render Launch button or a placeholder */}
+                <Link to="/Search"> 
                 {showLaunchButton ? (
                     <button className="btn2 px-[15px] py-[20px] relative rounded-lg border border-white uppercase font-semibold tracking-wider leading-none overflow-hidden hover:text-teal-600 hover:text-black" type="button">
                         <span className="absolute inset-0 bg-white"></span>
@@ -110,7 +111,7 @@ const Navbar = () => {
                             </span>
                             Launch
                         </button>
-                )}
+                )}</Link>
 
                     {/* <div className="flex items-center gap-6">
                         <button className="bg-[#a6c1ee] text-white px-5 py-2 rounded-full hover:bg-[#87acec]">Launch Product</button>

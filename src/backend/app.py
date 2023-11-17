@@ -384,8 +384,9 @@ def scrape_images():
         for img in images:
             src = img.get('src')
 
-            if not src:
-                continue
+            if not src or src.startswith('data:'):
+                continue  # Skip data URLs
+
             # Handle relative URLs
             if not src.startswith('http'):
                 src = urljoin(url, src)

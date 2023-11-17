@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import { Link, useLocation } from "react-router-dom";
 function Firstpage() {
 
     // <div className="w-screen h-screen bg-[#ccc6c6] flex flex-row items-center justify-center">
@@ -70,7 +70,7 @@ function Firstpage() {
               <h1 className='text-7xl font-extrabold zoom-in'>Snap Twins</h1>
               <h2 className='text-4xl font-normal mt-[20px] mb-[50px] tracking-widest'>Content-Based Information Retrieval Project</h2>
               <p className='text-2xl typing font-light text-[#c7d4ca]'>Matching Your Image In Just One Click.</p>
-              <button className='text-2xl font-bold border-[#00ff3b]  text-black rounded-lg mt-[30px] py-[15px] px-[20px] bg-[#00ff3b] hover:bg-green-500 drop-shadow-[0_2px_4px_rgba(255,255,255,0.7)]'>LAUNCH APP</button>
+              <Link to="/Search"><button className='text-2xl font-bold border-[#00ff3b]  text-black rounded-lg mt-[30px] py-[15px] px-[20px] bg-[#00ff3b] hover:bg-green-500 drop-shadow-[0_2px_4px_rgba(255,255,255,0.7)]'>LAUNCH APP</button></Link>
             </div>
         </div>
     );

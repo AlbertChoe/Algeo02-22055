@@ -8,6 +8,15 @@ function Aboutus() {
         "benardo1.jpg",
         "benardo2.jpg"
     ]
+    const albertImage = [
+        "albert1.jpg",
+        "albert2.jpg"
+    ]
+
+    const derImage = [
+        "derwin1.jpg" ,
+        "derwin2.jpg"
+    ]
     const [currentProfile, setcurrentProfile] = useState(0);
 
     // Effect to change the background image every 2 seconds
@@ -60,14 +69,14 @@ function Aboutus() {
                     </div>
                     <div className='relative  w-[270px] h-[350px] rounded-3xl shadow-lg transform hover:scale-105 transition duration-300 ease-in-out'>
                         <div className='w-full h-[270px] bg-cover bg-center rounded-3xl'
-                            style={{backgroundImage: `url(${benImage[currentProfile]})`}}
+                            style={{backgroundImage: `url(${derImage[currentProfile]})`}}
                         ></div>
                         <h1 className='text-center mt-[6px] drop-shadow-[0_2px_4px_rgba(255,255,255,0.7)] text-xl font-semibold'>Derwin Rustanly</h1>
                         <div className='flex justify-center mt-2'>
                             <a href="https://www.instagram.com/derwinrustanly/" target="_blank" rel="noopener noreferrer">
                                 <FaInstagram className="mx-4 text-white" style={{ fontSize: '30px' }}/>
                             </a>
-                            <a href="https://www.linkedin.com/in/albert-choe-4672b5253/" target="_blank" rel="noopener noreferrer">
+                            <a href="" target="_blank" rel="noopener noreferrer">
                                 <FaLinkedin className="mx-4 text-white" style={{ fontSize: '30px' }}/>
                             </a>
                             <a href="https://github.com/DerwinRustanly" target="_blank" rel="noopener noreferrer">
@@ -77,14 +86,14 @@ function Aboutus() {
                     </div>
                     <div className='relative  w-[270px] h-[350px] rounded-3xl shadow-lg transform hover:scale-105 transition duration-300 ease-in-out'>
                         <div className='w-full h-[270px] bg-cover bg-center rounded-3xl'
-                            style={{backgroundImage:`url(${benImage[currentProfile]})`}}
+                            style={{backgroundImage:`url(${albertImage[currentProfile]})`}}
                         ></div>
                         <h1 className='text-center mt-[6px] drop-shadow-[0_2px_4px_rgba(255,255,255,0.7)] text-xl font-semibold'>Albert</h1>
                         <div className='flex justify-center mt-3'>
                             <a href="https://www.instagram.com/albert__choe/" target="_blank" rel="noopener noreferrer">
                                 <FaInstagram className="mx-4 text-white" style={{ fontSize: '30px' }}/>
                             </a>
-                            <a href="https://www.linkedin.com/in/developer1" target="_blank" rel="noopener noreferrer">
+                            <a href="https://www.linkedin.com/in/albert-choe-4672b5253/" target="_blank" rel="noopener noreferrer">
                                 <FaLinkedin className="mx-4 text-white" style={{ fontSize: '30px' }}/>
                             </a>
                             <a href="https://github.com/AlbertChoe" target="_blank" rel="noopener noreferrer">
