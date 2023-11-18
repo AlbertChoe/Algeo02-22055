@@ -35,7 +35,6 @@ def rgb_to_hsv(img_np):
     s[cmax != 0] = delta[cmax != 0] / v[cmax != 0]
     s[cmax == 0] = 0
 
-    # Assume hsv_to_hsvFeature is a function you have defined elsewhere
     h, s, v = hsv_to_hsvFeature(h, s, v)
 
     # Combine H, S, V into one matrix
