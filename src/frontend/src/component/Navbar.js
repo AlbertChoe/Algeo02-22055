@@ -37,9 +37,7 @@ const Navbar = () => {
                                 </span>
                                 </Link>
                             </div>
-                            {/* <div className="hover:bg-amber-200 duration-300 hover:text-blue-200 py-3 px-5 rounded-lg ">
-                                <a className="   " href="#">Products</a>
-                            </div> */}
+                       
                         </li>
                         <li>
                             <div className="py-3">
@@ -49,9 +47,7 @@ const Navbar = () => {
                                 </span>
                                 </Link>
                             </div>
-                            {/* <div className="hover:bg-amber-200 duration-300 hover:text-blue-200 py-3 px-5 rounded-lg ">
-                                <a className="   " href="#">Products</a>
-                            </div> */}
+                       
                         </li>
                         <li>
                             <div className="py-3">
@@ -61,18 +57,10 @@ const Navbar = () => {
                                 </span>
                                 </Link>
                             </div>
-                            {/* <div className="hover:bg-amber-200  duration-300 py-3  px-5 rounded-lg hover:text-blue-200">
-                                <a className="  " href="#">Solution</a>
-                            </div> */}
+                   
                                 
                         </li>
-                        {/* <li>
-                            <a class="group text-pink-500 transition-all duration-300 ease-in-out" href="#">
-                                <span class="bg-left-bottom bg-gradient-to-r from-pink-500 to-pink-500 bg-[length:0%_2px] bg-no-repeat  group-hover:bg-[length:90%_2px] onset-10 pb-1 transition-all duration-500 ease-out">
-                                    This text g
-                                </span>
-                            </a>
-                        </li> */}
+                      
                         <li>
                             <div className="py-3">
                                 <Link to="/HowToUse" class="group text-white transition-all duration-300 ease-in-out" >
@@ -81,9 +69,7 @@ const Navbar = () => {
                                 </span>
                                 </Link>
                             </div>
-                            {/* <div className="hover:bg-amber-200 duration-300 py-3 hover:text-blue-200 px-5 rounded-lg">
-                                <a className="  " href="#">Resource</a>
-                                </div>     */}
+              
                             </li>
                             
                         </ul>
@@ -112,11 +98,6 @@ const Navbar = () => {
                             Launch
                         </button>
                 )}</Link>
-
-                    {/* <div className="flex items-center gap-6">
-                        <button className="bg-[#a6c1ee] text-white px-5 py-2 rounded-full hover:bg-[#87acec]">Launch Product</button>
-                        
-                    </div> */}
                 </nav>
             
         </nav>

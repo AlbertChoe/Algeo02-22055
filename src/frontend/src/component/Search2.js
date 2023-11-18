@@ -23,15 +23,12 @@ function Search2() {
     const [zipFile, setZipFile] = useState(null);
     const [isCameraLoacding,setIsCameraloading] = useState(true);
 
-    // const handleFolderChange = (event) => {
-    //     setFolderFiles([...event.target.files]);
-    // };
     
 
     useEffect(() => {
         setImageURL(null);
         setImageFile(null);
-        localStorage.removeItem('imageURL'); // Remove from localStorage if you're using it
+        localStorage.removeItem('imageURL'); // Remove from localStorage 
     }, []);
 
    
@@ -41,12 +38,6 @@ function Search2() {
         let url, options;
     
         if (isNewSearch) {
-            // Initial search with image file
-            // console.log("halo");
-            // url = `http://localhost:5000/search?page=${page}&type=${isTextureMode ? 'texture' : 'color'}`;
-            // const formData = new FormData();
-            // formData.append('file', imageFile);
-            // options = { method: 'POST', body: formData };
             const imageToUse = imageFileParam || imageFile;
             if (!imageToUse) {
                 console.error("No image file available for search.");
@@ -113,7 +104,7 @@ function Search2() {
         }
     };
 
-    // Common function to process the file
+    //  function to process the file
     const processFile = (file) => {
         if (file.type.startsWith('image/')) {
             const url = URL.createObjectURL(file);
@@ -137,68 +128,6 @@ function Search2() {
         setFolderFile(event.target.files[0]);
     };
 
-    // const handleUploadFolder = () => {
-    //     if (!folderFile) {
-    //         alert("Please select a folder file first.");
-    //         return;
-    //     }
-    
-    //     setIsUploading(true); // Start loading
-    
-    //     const formData = new FormData();
-    //     formData.append('file', folderFile);
-    
-    //     fetch('http://localhost:5000/upload', {
-    //         method: 'POST',
-    //         body: formData,
-    //     })
-    //     .then(response => response.text())
-    //     .then(data => {
-    //         console.log(data);
-    //         setUploadSuccess(true); // Show success message
-    //         setTimeout(() => {
-    //             setIsUploading(false); // Hide loading and success message after a delay
-    //             setUploadSuccess(false);
-    //         }, 2000); // 2 seconds delay
-    //     })
-    //     .catch(error => {
-    //         console.error(error);
-    //         setIsUploading(false); // Stop loading on error
-    //     });
-    // };
-
-    // const handleUploadFolder = () => {
-    //     if (folderFiles.length === 0) {
-    //       alert("Please select a folder first.");
-    //       return;
-    //     }
-      
-    //     setIsUploading(true); // Assuming you have a state to track upload status
-      
-    //     const formData = new FormData();
-    //     for (const file of folderFiles) {
-    //       formData.append('file', file);
-    //     }
-      
-    //     fetch('http://localhost:5000/upload', { // Update the URL to your server endpoint
-    //       method: 'POST',
-    //       body: formData,
-    //     })
-    //     .then(response => response.json()) // Assuming your server returns a JSON response
-    //     .then(data => {
-    //       console.log(data);
-    //       // Handle successful upload
-    //       setUploadSuccess(true); // Assuming you have a state to track success status
-    //       setTimeout(() => {
-    //         setIsUploading(false);
-    //         setUploadSuccess(false);
-    //       }, 2000);
-    //     })
-    //     .catch(error => {
-    //       console.error(error);
-    //       setIsUploading(false); // Handle upload error
-    //     });
-    //   };
 
     const handleToggleChange = () => {
         console.log("h1");
@@ -218,14 +147,14 @@ function Search2() {
             method: 'GET',
         })
         .then(response => {
-            // Handle the response from the server
+            // Handle response from the server
             if (response.ok) {
                 return response.blob();
             }
             throw new Error('Network response was not ok.');
         })
         .then(blob => {
-            // Create a new URL for the blob
+            // Create a new URL 
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -240,8 +169,6 @@ function Search2() {
         });
     };
 
-
-    
 
     // Update handleFileChange to also set imageFile
     const maxPageNumbers = 5;
@@ -379,10 +306,10 @@ function Search2() {
             return;
         }
         setIsUploading(true);
-        // Your backend endpoint for handling the URL submission
+        // backend endpoint for handling the URL submission
         const url = 'http://localhost:5000/scrape_images';
 
-        // Send the URL to your backend
+        // Send the URL to backend
         fetch(url, {
             method: 'POST',
             headers: {
@@ -407,30 +334,6 @@ function Search2() {
         });
     };
 
-    // const handleUploadFolder = async () => {
-    //     if (folderFiles.length === 0) {
-    //         alert("Please select a folder first.");
-    //         return;
-    //     }
-    
-    //     setIsUploading(true); // Start loading
-    
-    //     try {
-    //         console.log(1);
-    //         console.log(folderFiles);
-    //         await uploadFiles(folderFiles);
-    //         setUploadSuccess(true); // Show success message
-    //     } catch (error) {
-    //         console.error(error);
-    //         // Handle upload error
-    //     } finally {
-
-    //         setTimeout(() => {
-    //             setUploadSuccess(false);
-    //             setIsUploading(false);
-    //         }, 2000);
-    //     }
-    // };
 
     const handleFolderChange = async (event) => {
         const files = event.target.files;
@@ -562,17 +465,6 @@ function Search2() {
                         <h2 className="text-2xl font-bold mb-4">Upload Dataset</h2>
                         
                         <div className="mb-4">
-                            {/* <input 
-                                className="w-3/5 text-md p-2 border border-gray-300 rounded mb-2 mr-5" 
-                                type="file" 
-                                onChange={handleFolderFileChange} 
-                                directory=""
-                                webkitdirectory=""
-                                mozdirectory=""
-                                msdirectory=""
-                                odirectory=""
-                                multiple
-                            /> */}
                             <input
                                 className="w-3/5 text-md p-2 border border-gray-300 rounded mb-2 mr-5"
                                 type="file"

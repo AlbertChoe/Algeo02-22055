@@ -7,19 +7,14 @@ import zipfile
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
 import json
-from PIL import Image
 import numpy as np
-# Assuming your image processing functions (rgb_to_hsv, hsv_to_hsvFeature, makeHistogram, imageToHistogram) are defined
 from hitungancolor import imageBlockToHistogram, cosineSimilarity
 from hitungantexture import convertImageToGrayScale, createOccurenceMatrix, getTextureFeatures, cosineSimilarityTexture
 import time
 from multiprocessing import Pool
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 from bs4 import BeautifulSoup
-import re
 from urllib.parse import urlparse, urljoin, parse_qs
-import urllib.request
 import mimetypes
 
 
@@ -78,73 +73,12 @@ def clear_image_directory(directory):
         if os.path.isfile(item_path):
             os.remove(item_path)
 
-# @app.route('/upload', methods=['POST'])
-# def upload_folder():
-#     start_time = time.time()
-
-#     if 'folder' not in request.files:
-#         return jsonify({"error": "No folder part"}), 400
-
-#     folder = request.files['folder']
-
-#     # Clear existing data in the image directory
-#     clear_image_directory(image_dir)
-
-#     # Save the images from the folder
-#     for filename in folder:
-#         file_path = os.path.join(image_dir, secure_filename(filename.filename))
-#         filename.save(file_path)
-
-#     extraction_time = time.time()
-
-#     # Process the uploaded images and create a JSON file
-#     process_images_to_json(image_dir)
-#     processing_time = time.time()
-#     total_time = processing_time - start_time
-#     print(f"Total Time: {total_time:.2f} seconds")
-#     print(f"Extraction Time: {extraction_time - start_time:.2f} seconds")
-#     print(f"Processing Time: {processing_time - extraction_time:.2f} seconds")
-#     return jsonify({"message": "Images from folder uploaded and processed successfully"}), 200
 
 def allowed_file(filename):
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# @app.route('/upload', methods=['POST'])
-# def upload_folder():
-#     start_time = time.time()
-
-#     # Check if the post request has the file part
-#     if 'file' not in request.files:
-#         return jsonify({"error": "No file part in the request"}), 400
-
-#     # Get the list of files from the request
-#     files = request.files.getlist('file')
-
-#     if not files or all(file.filename == '' for file in files):
-#         return jsonify({"error": "No files found"}), 400
-
-#     # Clear existing data in the image directory
-#     clear_image_directory(image_dir)
-
-#     # Save each file in the file list
-#     for file in files:
-#         if file and allowed_file(file.filename):
-#             filename = secure_filename(file.filename)
-#             file_path = os.path.join(image_dir, filename)
-#             file.save(file_path)
-
-#     extraction_time = time.time()
-
-#     # Process the uploaded images and create a JSON file
-#     process_images_to_json(image_dir)
-#     processing_time = time.time()
-#     total_time = processing_time - start_time
-#     print(f"Total Time: {total_time:.2f} seconds")
-#     print(f"Extraction Time: {extraction_time - start_time:.2f} seconds")
-#     print(f"Processing Time: {processing_time - extraction_time:.2f} seconds")
-#     return jsonify({"message": "Files uploaded and processed successfully"}), 200
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -158,20 +92,17 @@ def upload_file():
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
 
-    # Clear existing data in the image directory
     clear_image_directory(image_dir)
 
     # Save the ZIP file temporarily
     temp_zip_path = os.path.join(image_dir, 'temp.zip')
     file.save(temp_zip_path)
 
-    # Extract only the allowed file types
     allowed_extensions = {'jpg', 'jpeg', 'png'}
     try:
         with zipfile.ZipFile(temp_zip_path, 'r') as zip_ref:
             for file_info in zip_ref.infolist():
                 if file_info.filename.split('.')[-1].lower() in allowed_extensions:
-                    # Extract files directly to the image directory, ignoring any folder structure in the ZIP file
                     file_info.filename = os.path.basename(file_info.filename)
                     zip_ref.extract(file_info, image_dir)
     except zipfile.BadZipFile:
@@ -191,25 +122,9 @@ def upload_file():
     return jsonify({"message": "File uploaded, extracted, and processed successfully"}), 200
 
 
-
-
 @app.route('/images/<filename>')
 def send_image(filename):
     return send_from_directory('static/image', filename)
-
-
-# def compute_similarity(image_name, features, target_features, search_type):
-#     if search_type == 'color':
-#         total_similarity = sum(cosineSimilarity(np.array(hist), target_hist)
-#                                for hist, target_hist in zip(features['color'], target_features))
-#         avg_similarity = total_similarity / len(target_features)
-#     else:
-#         avg_similarity = cosineSimilarityTexture(
-#             features['texture'], target_features)
-
-#     if avg_similarity >= 0.6:
-#         return image_name, avg_similarity
-#     return None
 
 
 @app.route('/search', methods=['POST'])
@@ -230,7 +145,7 @@ def search_image():
     if search_type == 'color':
         target_features = [np.array(hist)
                            for hist in imageBlockToHistogram(target_file)]
-    else:  # Assume texture search
+    else:
         gray_scale_image = convertImageToGrayScale(target_file)
         occurrence_matrix = createOccurenceMatrix(gray_scale_image)
         target_features = np.array(getTextureFeatures(occurrence_matrix))
@@ -238,16 +153,14 @@ def search_image():
     similarities = {}
     for image_name, features in image_features.items():
         if search_type == 'color':
-            # Assuming color histograms are stored in a list of arrays
             total_similarity = sum(cosineSimilarity(np.array(hist), target_hist)
                                    for hist, target_hist in zip(features['color'], target_features))
             avg_similarity = total_similarity / len(target_features)
         else:
-            # For texture, we have a single feature array
             avg_similarity = cosineSimilarityTexture(
                 features['texture'], target_features)
 
-        if avg_similarity >= 0.6:  # Adjust the threshold as needed
+        if avg_similarity >= 0.6:
             similarities[image_name] = avg_similarity
 
     end_time = time.time()
@@ -329,15 +242,15 @@ def generate_pdf(sorted_similarities, total_images, search_duration):
     y_position -= 40  # Adjust position for first image
 
     for image_name, similarity in sorted_similarities:
-        # Check space and add new page if needed
-        if y_position < 200:  # Adjust as per your image height
+        # Check space and add new page
+        if y_position < 200:
             c.showPage()
             y_position = height - 30
 
         # Text for image name and similarity
         c.drawString(
             30, y_position, f"{image_name} - Similarity: {round(similarity * 100, 5)}%")
-        y_position -= 10  # Adjust text position
+        y_position -= 10  # text position
 
         # Load and draw the image directly from static folder
         image_path = os.path.join('static', 'image', image_name)
@@ -396,22 +309,23 @@ def scrape_images():
 
             if 'url' in query_url:
                 image_path = query_url['url'][0]
-                src = urlparse(url).scheme + "://" + urlparse(url).netloc + image_path
+                src = urlparse(url).scheme + "://" + \
+                    urlparse(url).netloc + image_path
 
             image_res = requests.get(src)
-            if(image_res.status_code != 200):
+            if (image_res.status_code != 200):
                 continue
-           
-            type = image_res.headers['Content-Type']
-            extension =  mimetypes.guess_extension(type)
 
-            if extension != None :
+            type = image_res.headers['Content-Type']
+            extension = mimetypes.guess_extension(type)
+
+            if extension != None:
                 if extension in ['.jpg', '.jpeg', '.png']:
                     image_file_name = f'image_{saved_images_count}{extension}'
                     with open(os.path.join(image_dir, image_file_name), 'wb') as file:
                         file.write(image_res.content)
                     saved_images_count += 1
-        
+
         # After saving images, process them
         process_images_to_json(image_dir)
 
@@ -419,7 +333,7 @@ def scrape_images():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    
+
 
 @app.route('/upload_batch', methods=['POST'])
 def upload_batch():
@@ -448,6 +362,7 @@ def upload_batch():
     print(f"Total Time: {total_time:.2f} seconds")
 
     return jsonify({"message": "Batch upload successful"}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)

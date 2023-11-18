@@ -7,12 +7,12 @@ import math
 def convertImageToGrayScale(Path):
     np.seterr(divide='ignore', invalid='ignore')
     img = Image.open(Path)
-    
+
     if img.width > 1080:
         w = 1080
         h = int(img.height/img.width * 1080)
-        img = img.resize((w,h))
-        
+        img = img.resize((w, h))
+
     # Convert image to RGB if it's not already
     if img.mode != 'RGB':
         img = img.convert('RGB')
@@ -54,13 +54,3 @@ def cosineSimilarityTexture(a, b):
     lengthb = math.sqrt(np.dot(b, b))
     result = dot_product / (lengtha * lengthb)
     return result
-
-# if __name__ == "__main__":
-#     st = time.time()
-#     path1 = "image/2.jpg"
-#     path2 = "image/10.jpg"
-#     v1 = getTextureFeatures(createOccurenceMatrix(convertImageToGrayScale(path1)))
-#     v2 = getTextureFeatures(createOccurenceMatrix(convertImageToGrayScale(path2)))
-#     print("Cos : ", cosineSimilarity(v1,v2))
-#     fn = time.time()
-#     print("Time : ", (fn-st))

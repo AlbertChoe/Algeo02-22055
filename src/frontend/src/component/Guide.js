@@ -55,10 +55,7 @@ function Guide() {
                             </h1>
                         </div>
                     ))}
-                {/* <div className="w-[300px] h-[200px]  rounded-3xl bg-black drop-shadow-[2px_2px_6px_rgba(255,255,255,0.7)]">
-                    <div className="w-[15%] h-[22.5%] bg-[#00f739] rounded-full z-30 mt-[20px] ml-[20px] flex items-center justify-center text-2xl font-bold text-black">1.</div>
-                    <h1 className="w-full text-2xl font-reemkuri flex flex-wrap justify-center px-[50px] pt-[10px] drop-shadow-[0_2px_4px_rgba(255,255,255,0.7)]">Click 'Launch App' on the Home Page</h1>
-                </div> */}
+                
 
             </div>
         </div>

@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 
-import Navbar from './component/Navbar';
 import {
   BrowserRouter as Router,
   Routes,
@@ -12,7 +11,6 @@ import {
 } from "react-router-dom";
 import Firstpage from './component/Firstpage';
 import Aboutus from './component/AboutUs';
-import Search from './component/Search';
 import Search2 from './component/Search2';
 import Guide from './component/Guide';
 import Tech from './component/Tech';

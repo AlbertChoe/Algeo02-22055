@@ -1,7 +1,6 @@
 from PIL import Image
 import numpy as np
 import time
-import math
 
 
 import numpy as np
@@ -95,23 +94,6 @@ def makeHistogram(array):
     return temp_arr
 
 
-# def imageToHistogram(image_path):
-
-#     np.seterr(divide='ignore', invalid='ignore')
-
-#     img = Image.open(image_path)
-#     if img.mode != 'RGB':
-#         img = img.convert('RGB')
-
-#     img_np = np.array(img)
-
-#     hsv_arr = rgb_to_hsv(img_np)
-#     hsv_arr_int = hsv_arr.astype(int)
-
-#     histogram_arr = makeHistogram(hsv_arr_int)
-#     return histogram_arr
-
-
 def process_block(img_np, x_start, x_end, y_start, y_end):
     block = img_np[x_start:x_end, y_start:y_end, :]
     hsv_arr = rgb_to_hsv(block)
@@ -124,8 +106,8 @@ def imageBlockToHistogram(image_path):
     if img.width > 1080:
         w = 1080
         h = int(img.height/img.width * 1080)
-        img = img.resize((w,h))
-        
+        img = img.resize((w, h))
+
     if img.mode != 'RGB':
         img = img.convert('RGB')
     img_np = np.array(img)
@@ -153,25 +135,3 @@ def cosineSimilarity(vector1, vector2):
         return 0
 
     return dot_product / (length_vector1 * length_vector2)
-
-
-# def cosineSimilarityBlock(histo1, histo2):
-#     histo1 = histo1.astype(np.int64)
-#     histo2 = histo2.astype(np.int64)
-
-#     dot_product = np.dot(histo1, histo2)
-#     lenghtHisto1 = math.sqrt(np.dot(histo1, histo1))
-#     lengthHisto2 = math.sqrt(np.dot(histo2, histo2))
-#     result = dot_product / (lenghtHisto1 * lengthHisto2)
-#     return result
-
-
-# start = time.time()
-# myhisto1 = imageToHistogram("image1.jpeg")
-# myhisto2 = imageToHistogram("image2.jpeg")
-# print(myhisto1)
-# print(myhisto2)
-# cosinus = cosineSimilarity(myhisto1, myhisto2)
-# print("cosinus = " + str(cosinus))
-# end = time.time()
-# print("Time : " + str(end - start))
