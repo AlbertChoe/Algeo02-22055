@@ -42,7 +42,7 @@ function Aboutus() {
                 >
                     <p className='text-gray-500 font-reemkufi'>Our team</p>
                     <h1 className='text-7xl  font-light '><span className='font-extrabold'>ABOUT </span>US</h1> 
-                    <button className='bg-[#ff1100] rounded-lg px-[12px] py-[8px] mt-[30px] text-sm text-gray-200 hover:bg-opacity-80 font-reemkufi'>VISIT OUR REPOSITORY</button>
+                    <a href='https://github.com/AlbertChoe/Algeo02-22055' target="_blank"><button className='bg-[#ff1100] rounded-lg px-[12px] py-[8px] mt-[30px] text-sm text-gray-200 hover:bg-opacity-80 font-reemkufi'>VISIT OUR REPOSITORY</button></a>
                 </div>
                 <div 
                     className='flex item-center z-20 mt-[30px] mb-[20px]'
@@ -54,6 +54,9 @@ function Aboutus() {
                         <div className='w-full h-[270px] bg-cover bg-center rounded-3xl'
                             style={{backgroundImage: `url(${benImage[currentProfile]})`}}
                         ></div>
+                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 flex items-center justify-center rounded-3xl transition duration-300 ease-in-out group">
+                            <span className="text-white text-center px-4 font-reemkufi tracking-wide translate-y-20 group-hover:translate-y-0 transition duration-1000">Never let others control you, you are your own king.</span>
+                        </div>
                         <h1 className='text-center mt-[6px] drop-shadow-[0_2px_4px_rgba(255,255,255,0.7)] text-xl font-semibold'>Benardo</h1>
                         <div className='flex justify-center mt-2'>
                             <a href="https://www.instagram.com/benardosg" target="_blank" rel="noopener noreferrer">
@@ -71,6 +74,9 @@ function Aboutus() {
                         <div className='w-full h-[270px] bg-cover bg-center rounded-3xl'
                             style={{backgroundImage: `url(${derImage[currentProfile]})`}}
                         ></div>
+                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 flex items-center justify-center rounded-3xl transition duration-300 ease-in-out group">
+                            <span className="text-white text-center px-4 font-reemkufi tracking-wide translate-y-20 group-hover:translate-y-0 transition duration-1000">Opportunities are usually disguised as hard work, so most people don't recognize them.</span>
+                        </div>
                         <h1 className='text-center mt-[6px] drop-shadow-[0_2px_4px_rgba(255,255,255,0.7)] text-xl font-semibold'>Derwin Rustanly</h1>
                         <div className='flex justify-center mt-2'>
                             <a href="https://www.instagram.com/derwinrustanly/" target="_blank" rel="noopener noreferrer">
@@ -88,6 +94,9 @@ function Aboutus() {
                         <div className='w-full h-[270px] bg-cover bg-center rounded-3xl'
                             style={{backgroundImage:`url(${albertImage[currentProfile]})`}}
                         ></div>
+                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 flex items-center justify-center rounded-3xl transition duration-300 ease-in-out group">
+                            <span className="text-white text-center px-4 font-reemkufi tracking-wide translate-y-20 group-hover:translate-y-0 transition duration-1000">Success isn't always about greatness. It's about consistency. Consistent hard work leads to success. Greatness will come.</span>
+                        </div>
                         <h1 className='text-center mt-[6px] drop-shadow-[0_2px_4px_rgba(255,255,255,0.7)] text-xl font-semibold'>Albert</h1>
                         <div className='flex justify-center mt-3'>
                             <a href="https://www.instagram.com/albert__choe/" target="_blank" rel="noopener noreferrer">

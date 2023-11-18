@@ -24,7 +24,7 @@ const Navbar = () => {
                     <div className="text-4xl font-reemkufi font-extrabold">
                         {/* Uncomment and replace src with your logo */}
                     {/* <img className="w-16 cursor-pointer" src="" alt="..."/> */}
-                    <Link to="/"> SnapTwin </Link>
+                    <Link to="/"> SnapTwins. </Link>
 
                     </div>
                     <div className="duration-500 min-h-[10vh]  w-auto  flex items-center  text-white   ">
