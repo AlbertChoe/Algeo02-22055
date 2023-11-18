@@ -21,7 +21,7 @@ function Search2() {
     const [useCamera, setUseCamera] = useState(false);
     const videoRef = useRef(null);
     const [zipFile, setZipFile] = useState(null);
-
+    const [isCameraLoacding,setIsCameraloading] = useState(true);
 
     // const handleFolderChange = (event) => {
     //     setFolderFiles([...event.target.files]);
@@ -53,6 +53,7 @@ function Search2() {
                 setIsSearching(false);
                 return;
             }
+            console.log(isTextureMode);
             url = `http://localhost:5000/search?page=${page}&type=${isTextureMode ? 'texture' : 'color'}`;
             const formData = new FormData();
             formData.append('file', imageToUse);
@@ -200,7 +201,9 @@ function Search2() {
     //   };
 
     const handleToggleChange = () => {
+        console.log("h1");
         setIsTextureMode(!isTextureMode);
+        console.log(isTextureMode);
     };
     
 
@@ -280,10 +283,13 @@ function Search2() {
     useEffect(() => {
         let intervalId;
         if (useCamera) {
+            setIsCameraloading(true);
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(stream => {
+                    
                     videoRef.current.srcObject = stream;
                     videoRef.current.play();
+                    setIsCameraloading(false);
     
                     // Set up an interval to take a picture every 10 seconds
                     intervalId = setInterval(() => {
@@ -324,7 +330,7 @@ function Search2() {
                 videoRef.current.srcObject = null;
             }
         };
-    }, [useCamera]);
+    }, [useCamera , isTextureMode]);
 
     const handleToggleCamera = () => {
         const shouldUseCamera = !useCamera;
@@ -502,8 +508,17 @@ function Search2() {
 
 
                         {useCamera ? (
-                            <div className="camera-container flex items-center justify-center">
-                                <video ref={videoRef} width="400" height="300" className='rounded-xl'></video>
+                            <div className="camera-container flex items-center justify-center ">
+                                <div className='w-[400px] h-[300px]'>
+                                {isCameraLoacding && (
+                                    <div className="w-full h-full bg-[#454242] inset-0 flex items-center justify-center flex-row rounded-xl">
+                                        {/* Replace this div with your loading spinner or animation */}
+                                        <div className='loader'></div>
+                                        <div className="ml-5 text-xl font-bold">Loading...</div> 
+                                    </div>
+                                )}
+                                    <video ref={videoRef} width="400" height="300" className='rounded-xl'></video>
+                                </div>
                             </div>
                         ) : (
 
@@ -574,26 +589,28 @@ function Search2() {
                             </button>
                         </div>
 
-                        <div className='text-white text-xl font-reemkufi font-bold mt-10'>
-                            Insert dataset via link :   
-                            <button className='ml-3 bg-[#ff0000] px-5 py-3 rounded-[100px] font-reemkufi font-bold border border-[#ff0000] hover:bg-red-500' onClick={handleShowModal}>Image Scrapping</button>
+                        <div className='text-white  text-xl font-reemkufi font-bold mt-10 w-full flex justify-between items-center tracking-widest'>
+                            <div className='ml-[70px]'>Insert  dataset  from website link :</div>
+                            <button className='bg-[#ff0000] mr-[70px] px-5 py-3 rounded-[100px] font-reemkufi font-bold border border-[#ff0000] hover:bg-red-500' onClick={handleShowModal}>Image Scraping</button>
                         </div>
-
-                        <div>
-                            <input
-                                className="mr-2 mt-16 h-5 w-12 appearance-none rounded-lg bg-neutral-300 before:pointer-events-none before:absolute before:h-5 before:w-5 before:rounded-full before:bg-transparent before:content-[''] after:absolute after:z-[2] after:-mt-[0.1875rem] after:h-6 after:w-6 after:rounded-full after:border-none after:bg-neutral-100 after:shadow-lg after:transition-all after:content-[''] checked:bg-blue-500 checked:after:absolute checked:after:z-[2] checked:after:-mt-[3px] checked:after:ml-[1.625rem] checked:after:h-6 checked:after:w-6 checked:after:rounded-full checked:after:border-none checked:after:bg-blue-500 checked:after:shadow-lg checked:after:transition-all hover:cursor-pointer focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-lg focus:before:transition-all focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-6 focus:after:w-6 focus:after:rounded-full focus:after:content-[''] checked:focus:border-blue-500 checked:focus:bg-blue-500 checked:focus:before:ml-[1.625rem] checked:focus:before:scale-100 checked:focus:before:shadow-lg checked:focus:before:transition-all dark:bg-neutral-600 dark:after:bg-neutral-400 dark:checked:bg-blue-500 dark:checked:after:bg-blue-500 dark:focus:before:shadow-lg dark:checked:focus:before:shadow-lg"
-                                type="checkbox"
-                                role="switch"
-                                id="flexSwitchCheckDefault"
-                                checked={isTextureMode}
-                                onChange={handleToggleChange}
-                            />
-                            <label
-                                className="inline-block pl-1 text-lg hover:cursor-pointer"
-                                htmlFor="flexSwitchCheckDefault"
-                            >
-                                {isTextureMode ? 'Texture' : 'Color'}
-                            </label>
+                        <div className='flex flex-row mt-10 justify-between mb-10'>
+                            <div className='ml-[70px] tracking-widest text-white  text-xl font-reemkufi font-bold'>Choose Your Search Options : </div>
+                            <div className='mr-[120px]'>
+                                <input
+                                    className="mr-2 mt-1 h-5 w-12 appearance-none rounded-lg bg-neutral-300 before:pointer-events-none before:absolute before:h-5 before:w-5 before:rounded-full before:bg-transparent before:content-[''] after:absolute after:z-[2] after:-mt-[0.1875rem] after:h-6 after:w-6 after:rounded-full after:border-none after:bg-neutral-100 after:shadow-lg after:transition-all after:content-[''] checked:bg-blue-500 checked:after:absolute checked:after:z-[2] checked:after:-mt-[3px] checked:after:ml-[1.625rem] checked:after:h-6 checked:after:w-6 checked:after:rounded-full checked:after:border-none checked:after:bg-blue-500 checked:after:shadow-lg checked:after:transition-all hover:cursor-pointer focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-lg focus:before:transition-all focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-6 focus:after:w-6 focus:after:rounded-full focus:after:content-[''] checked:focus:border-blue-500 checked:focus:bg-blue-500 checked:focus:before:ml-[1.625rem] checked:focus:before:scale-100 checked:focus:before:shadow-lg checked:focus:before:transition-all dark:bg-neutral-600 dark:after:bg-neutral-400 dark:checked:bg-blue-500 dark:checked:after:bg-blue-500 dark:focus:before:shadow-lg dark:checked:focus:before:shadow-lg"
+                                    type="checkbox"
+                                    role="switch"
+                                    id="flexSwitchCheckDefault"
+                                    checked={isTextureMode}
+                                    onChange={handleToggleChange}
+                                />
+                                <label
+                                    className="inline-block pl-1 text-lg hover:cursor-pointer"
+                                    htmlFor="flexSwitchCheckDefault"
+                                >
+                                    {isTextureMode ? 'Texture' : 'Color'}
+                                </label>
+                            </div>
                         </div>
 
                         
