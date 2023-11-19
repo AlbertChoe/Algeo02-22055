@@ -1,7 +1,8 @@
-# Algeo02-22055
 <h1 align="center"> Tugas Besar 2 IF2123 Aljabar Linear dan Geometri</h1>
-<h1 align="center"> Kelompok 2 - TemanMasaKecil</h1>
+<h1 align="center"> Kelompok 2 - TemanMasaKecil - Algeo02-22055 </h1>
 <h1 align="center">  Content-Based Information Retrieval (CBIR)  </h1>
+
+
 
 # SnapTwins
  Sebuah repositori yang berisi program yang mengimplementasikan **Sistem Temu Balik Gambar** atau  **CBIR** berbasis aplikasi **website** dengan cara mengekstraksi parameter **warna** dan **tekstur** dari suatu citra.
