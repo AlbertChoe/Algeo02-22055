@@ -1,3 +1,8 @@
+# Algeo02-22055
+<h1 align="center"> Tugas Besar 2 IF2123 Aljabar Linear dan Geometri</h1>
+<h1 align="center"> Kelompok 2 - TemanMasaKecil</h1>
+<h1 align="center">  Content-Based Information Retrieval (CBIR)  </h1>
+
 # SnapTwins
  Sebuah repositori yang berisi program yang mengimplementasikan **Sistem Temu Balik Gambar** atau  **CBIR** berbasis aplikasi **website** dengan cara mengekstraksi parameter **warna** dan **tekstur** dari suatu citra.
  
@@ -112,6 +117,38 @@
     npm run start
     ```
     Setelah itu web akan terbuka dan bisa dijalankan.
+
+ - Repository : https://github.com/AlbertChoe/Algeo02-22055
+
+## Struktur Program
+.
+└── src/
+    ├── backend/
+    │   ├── static/
+    │   │   └── image
+    │   ├── app.py
+    │   ├── hitungcolor.py
+    │   ├── hitungtexture.py
+    │   ├── image_features.json
+    │   ├── package-lock.json
+    │   ├── search_results.json
+    │   ├── READMEFLASK.md
+    │   └── requirements.txt
+    └── frontend/
+        ├── public
+        ├── src/
+        │   ├── component/
+        │   │   ├── AboutUs.js
+        │   │   ├── Firstpage.js
+        │   │   ├── Guide.js
+        │   │   ├── Navbar.js
+        │   │   ├── Search2.js
+        │   │   └── Tech.js
+        │   ├── App.css
+        │   ├── App.js
+        │   ├── index.css
+        │   └── index.js
+        └── tailwind.config.js
 
 ## Contact
 1. [13522055 Benardo](https://github.com/Benardo07)
