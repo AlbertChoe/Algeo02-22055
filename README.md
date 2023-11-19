@@ -122,6 +122,7 @@
  - Repository : https://github.com/AlbertChoe/Algeo02-22055
 
 ## Struktur Program
+```bash
 .
 └── src/
     ├── backend/
@@ -150,7 +151,7 @@
         │   ├── index.css
         │   └── index.js
         └── tailwind.config.js
-
+```
 ## Contact
 1. [13522055 Benardo](https://github.com/Benardo07)
 2. [13522091 Albert](https://github.com/AlbertChoe)
